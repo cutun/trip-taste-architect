@@ -18,6 +18,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				'inter': ['Inter', 'sans-serif'],
+				'poppins': ['Poppins', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -61,6 +65,17 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				/* TasteTrail brand colors */
+				coral: {
+					DEFAULT: 'hsl(var(--coral))',
+					light: 'hsl(var(--coral-light))',
+					dark: 'hsl(var(--coral-dark))'
+				},
+				teal: {
+					DEFAULT: 'hsl(var(--teal))',
+					light: 'hsl(var(--teal-light))',
+					dark: 'hsl(var(--teal-dark))'
 				}
 			},
 			borderRadius: {
