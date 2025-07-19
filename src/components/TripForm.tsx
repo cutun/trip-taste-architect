@@ -1,24 +1,31 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, MapPin, DollarSign, Calendar, Heart, X } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Loader2, MapPin, DollarSign, Calendar as CalendarIcon, Heart, X } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface FormData {
   budget: string;
-  tripLength: number[];
+  startDate: Date | undefined;
+  endDate: Date | undefined;
   destination: string;
   likes: string[];
   dislikes: string[];
 }
 
 const TripForm = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     budget: '',
-    tripLength: [7],
+    startDate: undefined,
+    endDate: undefined,
     destination: '',
     likes: [],
     dislikes: []
@@ -47,15 +54,25 @@ const TripForm = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    // TODO: API call to generate itinerary
-    console.log('Form data:', formData);
-    
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // TODO: Replace with actual API call when backend is ready
+      // const response = await fetch('/api/generate-trips', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(formData)
+      // });
+      // const trips = await response.json();
+      
+      // For now, simulate API call and navigate to trip selection
+      setTimeout(() => {
+        setIsLoading(false);
+        // Navigate to trip selection with form data as state
+        navigate('/trip-selection', { state: formData });
+      }, 2000);
+    } catch (error) {
+      console.error('Error generating trips:', error);
       setIsLoading(false);
-      // TODO: Redirect to itinerary page
-      alert('Itinerary generation coming soon!');
-    }, 3000);
+    }
   };
 
   return (
@@ -78,8 +95,8 @@ const TripForm = () => {
             
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-8">
-                {/* Budget & Trip Length Row */}
-                <div className="grid md:grid-cols-2 gap-6">
+                {/* Budget & Dates Row */}
+                <div className="grid md:grid-cols-3 gap-6">
                   {/* Budget */}
                   <div className="space-y-2">
                     <Label htmlFor="budget" className="flex items-center gap-2">
@@ -100,24 +117,68 @@ const TripForm = () => {
                     </div>
                   </div>
 
-                  {/* Trip Length */}
+                  {/* Start Date */}
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-primary" />
-                      Trip Length: {formData.tripLength[0]} {formData.tripLength[0] === 1 ? 'day' : 'days'}
+                      <CalendarIcon className="w-4 h-4 text-primary" />
+                      Start Date
                     </Label>
-                    <Slider
-                      value={formData.tripLength}
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, tripLength: value }))}
-                      max={21}
-                      min={1}
-                      step={1}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>1 day</span>
-                      <span>21 days</span>
-                    </div>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal rounded-xl",
+                            !formData.startDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {formData.startDate ? format(formData.startDate, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={formData.startDate}
+                          onSelect={(date) => setFormData(prev => ({ ...prev, startDate: date }))}
+                          disabled={(date) => date < new Date()}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  {/* End Date */}
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <CalendarIcon className="w-4 h-4 text-primary" />
+                      End Date
+                    </Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal rounded-xl",
+                            !formData.endDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {formData.endDate ? format(formData.endDate, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={formData.endDate}
+                          onSelect={(date) => setFormData(prev => ({ ...prev, endDate: date }))}
+                          disabled={(date) => date < (formData.startDate || new Date())}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
 
