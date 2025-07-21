@@ -1,73 +1,78 @@
-# Welcome to your Lovable project
+# TasteTrail - AI Travel Planning App
 
-## Project info
+An AI-powered travel planning web application that creates personalized itineraries based on your preferences.
 
-**URL**: https://lovable.dev/projects/714fb7c1-c619-4fc2-9f7a-4e36a5858110
+## Important: Setup Instructions
 
-## How can I edit this code?
+⚠️ **You cannot run this app by opening `index.html` directly in your browser!** This is a React application that requires a development server.
 
-There are several ways of editing your application.
+### Prerequisites
 
-**Use Lovable**
+- Node.js (v18 or higher)
+- npm or yarn
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/714fb7c1-c619-4fc2-9f7a-4e36a5858110) and start prompting.
+### Installation & Running
 
-Changes made via Lovable will be committed automatically to this repo.
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-**Use your preferred IDE**
+2. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+3. **Open your browser:**
+   Navigate to `http://localhost:5173` (or the port shown in your terminal)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Available Scripts
 
-Follow these steps:
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build locally
+- `npm run lint` - Run ESLint
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Technology Stack
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- **Frontend:** React 18, TypeScript
+- **Routing:** React Router Dom
+- **Styling:** Tailwind CSS
+- **UI Components:** shadcn/ui
+- **Build Tool:** Vite
+- **Icons:** Lucide React
+- **Date Handling:** date-fns
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Project Structure
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+src/
+├── components/        # Reusable UI components
+├── pages/            # Page components
+├── hooks/            # Custom React hooks
+├── lib/              # Utility functions
+└── assets/           # Static assets
 ```
 
-**Edit a file directly in GitHub**
+## Features
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- ✨ AI-powered trip planning
+- 📅 Interactive date selection with calendar
+- 👥 Customizable traveler options (adults, children, rooms)
+- 🗺️ Interactive itinerary timeline
+- 📱 Responsive design
+- 🌙 Dark mode support
 
-**Use GitHub Codespaces**
+## Development
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+The app includes mock data for development. Backend API integration points are marked with TODO comments for future implementation.
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## Deployment
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+You can deploy this project using [Lovable](https://lovable.dev/projects/714fb7c1-c619-4fc2-9f7a-4e36a5858110) by clicking Share -> Publish.
 
-## How can I deploy this project?
+## Custom Domain
 
-Simply open [Lovable](https://lovable.dev/projects/714fb7c1-c619-4fc2-9f7a-4e36a5858110) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+To connect a custom domain, navigate to Project > Settings > Domains in Lovable.

@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Loader2, MapPin, DollarSign, Calendar as CalendarIcon, Heart, X } from 'lucide-react';
+import { Loader2, MapPin, DollarSign, Calendar as CalendarIcon, Heart, X, Users, Plus, Minus } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +16,9 @@ interface FormData {
   startDate: Date | undefined;
   endDate: Date | undefined;
   destination: string;
+  adults: number;
+  children: number;
+  rooms: number;
   likes: string[];
   dislikes: string[];
 }
@@ -27,6 +30,9 @@ const TripForm = () => {
     startDate: undefined,
     endDate: undefined,
     destination: '',
+    adults: 2,
+    children: 0,
+    rooms: 1,
     likes: [],
     dislikes: []
   });
@@ -197,6 +203,117 @@ const TripForm = () => {
                     onChange={(e) => setFormData(prev => ({ ...prev, destination: e.target.value }))}
                     required
                   />
+                </div>
+
+                {/* People & Rooms */}
+                <div className="space-y-4">
+                  <Label className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-primary" />
+                    Travelers & Rooms
+                  </Label>
+                  <div className="grid grid-cols-3 gap-4">
+                    {/* Adults */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Adults</Label>
+                      <div className="flex items-center justify-between bg-muted rounded-xl p-2">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 rounded-full"
+                          onClick={() => setFormData(prev => ({ 
+                            ...prev, 
+                            adults: Math.max(1, prev.adults - 1) 
+                          }))}
+                          disabled={formData.adults <= 1}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                        <span className="font-medium text-lg">{formData.adults}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 rounded-full"
+                          onClick={() => setFormData(prev => ({ 
+                            ...prev, 
+                            adults: Math.min(10, prev.adults + 1) 
+                          }))}
+                          disabled={formData.adults >= 10}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Children */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Children</Label>
+                      <div className="flex items-center justify-between bg-muted rounded-xl p-2">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 rounded-full"
+                          onClick={() => setFormData(prev => ({ 
+                            ...prev, 
+                            children: Math.max(0, prev.children - 1) 
+                          }))}
+                          disabled={formData.children <= 0}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                        <span className="font-medium text-lg">{formData.children}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 rounded-full"
+                          onClick={() => setFormData(prev => ({ 
+                            ...prev, 
+                            children: Math.min(10, prev.children + 1) 
+                          }))}
+                          disabled={formData.children >= 10}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Rooms */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Rooms</Label>
+                      <div className="flex items-center justify-between bg-muted rounded-xl p-2">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 rounded-full"
+                          onClick={() => setFormData(prev => ({ 
+                            ...prev, 
+                            rooms: Math.max(1, prev.rooms - 1) 
+                          }))}
+                          disabled={formData.rooms <= 1}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                        <span className="font-medium text-lg">{formData.rooms}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 rounded-full"
+                          onClick={() => setFormData(prev => ({ 
+                            ...prev, 
+                            rooms: Math.min(5, prev.rooms + 1) 
+                          }))}
+                          disabled={formData.rooms >= 5}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Likes */}
