@@ -18,6 +18,7 @@ import {
   ShoppingCart
 } from 'lucide-react';
 import { format } from 'date-fns';
+import MapPanel from '@/components/MapPanel';
 
 // Mock detailed trip data - replace with actual API response
 const mockTripDetails = {
@@ -156,6 +157,7 @@ const TripDetails = () => {
   
   const [selectedFlightId, setSelectedFlightId] = useState('flight1');
   const [selectedHotelId, setSelectedHotelId] = useState('hotel1');
+  const [selectedActivity, setSelectedActivity] = useState(null);
   
   const tripDetails = mockTripDetails[tripId as keyof typeof mockTripDetails];
   
@@ -235,22 +237,28 @@ const TripDetails = () => {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {day.activities.map((activity, idx) => (
-                        <div key={idx} className="flex gap-4 p-4 border rounded-lg">
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-20">
-                            <Clock className="w-4 h-4" />
-                            {activity.time}
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-medium">{activity.title}</h4>
-                            <p className="text-sm text-muted-foreground mb-2">{activity.description}</p>
-                            <div className="flex items-center gap-4 text-sm">
-                              <span>Duration: {activity.duration}</span>
-                              <span className="font-medium text-primary">
-                                {activity.price === 0 ? 'Free' : `$${activity.price}`}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                         <div key={idx} className="flex gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                              onClick={() => setSelectedActivity({
+                                name: activity.title,
+                                time: activity.time,
+                                icon: '📍',
+                                coordinates: [139.6917 + Math.random() * 0.1, 35.6895 + Math.random() * 0.1] // Mock coordinates around Tokyo
+                              })}>
+                           <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-20">
+                             <Clock className="w-4 h-4" />
+                             {activity.time}
+                           </div>
+                           <div className="flex-1">
+                             <h4 className="font-medium mb-1">{activity.title}</h4>
+                             <p className="text-sm text-muted-foreground mb-2">{activity.description}</p>
+                             <div className="flex items-center gap-4 text-sm">
+                               <span className="text-muted-foreground">Duration: {activity.duration}</span>
+                               {activity.price > 0 && (
+                                 <Badge variant="secondary">${activity.price}</Badge>
+                               )}
+                             </div>
+                           </div>
+                         </div>
                       ))}
                     </CardContent>
                   </Card>
@@ -333,7 +341,13 @@ const TripDetails = () => {
               <TabsContent value="restaurants" className="space-y-4">
                 <div className="grid gap-4">
                   {tripDetails.restaurants.map((restaurant) => (
-                    <Card key={restaurant.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer">
+                    <Card key={restaurant.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer"
+                          onClick={() => setSelectedActivity({
+                            name: restaurant.name,
+                            time: restaurant.cuisine,
+                            icon: '🍽️',
+                            coordinates: restaurant.coordinates
+                          })}>
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <h4 className="font-semibold text-lg mb-2">{restaurant.name}</h4>
@@ -376,8 +390,12 @@ const TripDetails = () => {
             </Tabs>
           </div>
 
-          {/* Booking Summary Sidebar */}
-          <div className="lg:col-span-1">
+          {/* Right Sidebar */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Map Panel */}
+            <MapPanel selectedActivity={selectedActivity} />
+            
+            {/* Booking Summary */}
             <Card className="rounded-xl sticky top-6">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
