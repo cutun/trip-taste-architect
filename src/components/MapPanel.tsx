@@ -1,4 +1,6 @@
 import React, { useEffect, useRef } from 'react';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, Info } from 'lucide-react';
 
@@ -8,9 +10,55 @@ interface MapPanelProps {
 
 const MapPanel: React.FC<MapPanelProps> = ({ selectedActivity }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const marker = useRef<mapboxgl.Marker | null>(null);
 
-  // TODO: Implement Mapbox integration
-  // For now, showing a placeholder with activity info
+  useEffect(() => {
+    if (!mapContainer.current) return;
+
+    // Initialize map
+    mapboxgl.accessToken = 'pk.eyJ1IjoiaGlrYW5ha28iLCJhIjoiY21kMmVmM2pjMXUyNzJscHUxMmR2bzllbCJ9.GX4ovlr7gxjETRymXw0D4A';
+    
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [139.6917, 35.6895], // Tokyo coordinates
+      zoom: 12,
+    });
+
+    // Add navigation controls
+    map.current.addControl(
+      new mapboxgl.NavigationControl(),
+      'top-right'
+    );
+
+    // Cleanup
+    return () => {
+      map.current?.remove();
+    };
+  }, []);
+
+  // Update map when selectedActivity changes
+  useEffect(() => {
+    if (!map.current || !selectedActivity?.coordinates) return;
+
+    // Remove existing marker
+    if (marker.current) {
+      marker.current.remove();
+    }
+
+    // Add new marker
+    marker.current = new mapboxgl.Marker({ color: '#FF715B' })
+      .setLngLat(selectedActivity.coordinates)
+      .addTo(map.current);
+
+    // Fly to the location
+    map.current.flyTo({
+      center: selectedActivity.coordinates,
+      zoom: 15,
+      duration: 1500
+    });
+  }, [selectedActivity]);
 
   return (
     <Card className="rounded-xl shadow-card h-[600px] flex flex-col">
@@ -22,23 +70,14 @@ const MapPanel: React.FC<MapPanelProps> = ({ selectedActivity }) => {
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col">
-        {/* Map placeholder */}
+        {/* Mapbox container */}
         <div 
           ref={mapContainer}
-          className="flex-1 bg-muted/30 rounded-xl flex items-center justify-center relative overflow-hidden"
+          className="flex-1 rounded-xl overflow-hidden relative"
         >
-          {/* TODO: Replace with actual Mapbox component */}
-          <div className="text-center p-6">
-            <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground mb-2">Interactive Map</p>
-            <p className="text-sm text-muted-foreground">
-              Mapbox integration coming soon
-            </p>
-          </div>
-          
           {/* Activity overlay */}
           {selectedActivity && (
-            <div className="absolute bottom-4 left-4 right-4 bg-background/95 backdrop-blur-sm rounded-lg p-3 border">
+            <div className="absolute bottom-4 left-4 right-4 bg-background/95 backdrop-blur-sm rounded-lg p-3 border z-10">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{selectedActivity.icon}</span>
                 <div className="flex-1">

@@ -102,6 +102,48 @@ const mockTripDetails = {
         amenities: ['Spa', 'Pool', 'Gym', 'Restaurant', 'Concierge'],
         selected: false
       }
+    ],
+    restaurants: [
+      {
+        id: 'rest1',
+        name: 'Sushi Yoshitake',
+        cuisine: 'Japanese Sushi',
+        rating: 4.9,
+        averagePrice: 350,
+        description: 'Three Michelin starred sushi restaurant with exceptional omakase experience.',
+        distance: '0.3 miles from hotel',
+        coordinates: [139.7640, 35.6762]
+      },
+      {
+        id: 'rest2',
+        name: 'Ramen Ichiran',
+        cuisine: 'Japanese Ramen',
+        rating: 4.3,
+        averagePrice: 15,
+        description: 'Famous tonkotsu ramen chain with individual booth seating.',
+        distance: '0.1 miles from hotel',
+        coordinates: [139.7009, 35.6598]
+      },
+      {
+        id: 'rest3',
+        name: 'Tsukiji Outer Market',
+        cuisine: 'Street Food',
+        rating: 4.6,
+        averagePrice: 25,
+        description: 'Fresh seafood and traditional Japanese street food market.',
+        distance: '1.2 miles from hotel',
+        coordinates: [139.7673, 35.6655]
+      },
+      {
+        id: 'rest4',
+        name: 'Nabezo Shibuya',
+        cuisine: 'Japanese BBQ',
+        rating: 4.1,
+        averagePrice: 45,
+        description: 'All-you-can-eat yakiniku and shabu-shabu with premium wagyu beef.',
+        distance: '0.5 miles from hotel',
+        coordinates: [139.7005, 35.6591]
+      }
     ]
   }
 };
@@ -174,11 +216,12 @@ const TripDetails = () => {
           {/* Main Content */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="itinerary" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
-                <TabsTrigger value="flights">Flights</TabsTrigger>
-                <TabsTrigger value="hotels">Hotels</TabsTrigger>
-              </TabsList>
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
+              <TabsTrigger value="flights">Flights</TabsTrigger>
+              <TabsTrigger value="hotels">Hotels</TabsTrigger>
+              <TabsTrigger value="restaurants">Restaurants</TabsTrigger>
+            </TabsList>
 
               {/* Itinerary Tab */}
               <TabsContent value="itinerary" className="space-y-6">
@@ -284,6 +327,51 @@ const TripDetails = () => {
                     </CardContent>
                   </Card>
                 ))}
+              </TabsContent>
+
+              {/* Restaurants Tab */}
+              <TabsContent value="restaurants" className="space-y-4">
+                <div className="grid gap-4">
+                  {tripDetails.restaurants.map((restaurant) => (
+                    <Card key={restaurant.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-lg mb-2">{restaurant.name}</h4>
+                          <p className="text-muted-foreground text-sm mb-2">{restaurant.cuisine}</p>
+                          <p className="text-sm mb-2">{restaurant.description}</p>
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <span
+                                  key={i}
+                                  className={`text-sm ${
+                                    i < restaurant.rating ? 'text-yellow-500' : 'text-gray-300'
+                                  }`}
+                                >
+                                  ★
+                                </span>
+                              ))}
+                            </div>
+                            <span className="text-sm text-muted-foreground">
+                              ({restaurant.rating}/5)
+                            </span>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            Average meal: ${restaurant.averagePrice}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <Button variant="outline" size="sm" className="mb-2">
+                            View Menu
+                          </Button>
+                          <p className="text-xs text-muted-foreground">
+                            {restaurant.distance}
+                          </p>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
               </TabsContent>
             </Tabs>
           </div>
