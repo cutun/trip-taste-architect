@@ -1,0 +1,16 @@
+{
+  "name": "tastetrial-backend-proxy",
+  "version": "1.0.0",
+  "description": "A proxy server to forward requests from the frontend to the Python API.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}
