@@ -47,7 +47,7 @@ const TripDetails = () => {
         averagePrice: day.lunch.estimated_cost_range?.max || 25,
         description: day.lunch.rationale || 'Delicious local cuisine',
         distance: day.lunch.address || 'City center',
-        coordinates: [139.6917 + Math.random() * 0.1, 35.6895 + Math.random() * 0.1]
+        coordinates: [-118.2437 + Math.random() * 0.1, 34.0522 + Math.random() * 0.1]
       });
     }
     if (day.dinner?.restaurant_name) {
@@ -59,7 +59,7 @@ const TripDetails = () => {
         averagePrice: day.dinner.estimated_cost_range?.max || 45,
         description: day.dinner.rationale || 'Perfect for dinner',
         distance: day.dinner.address || 'City center',
-        coordinates: [139.6917 + Math.random() * 0.1, 35.6895 + Math.random() * 0.1]
+        coordinates: [-118.2437 + Math.random() * 0.1, 34.0522 + Math.random() * 0.1]
       });
     }
     return dayRestaurants;
@@ -88,7 +88,45 @@ const TripDetails = () => {
             ← Back to Trip Form
           </Button>
           
-          <h1 className="text-4xl font-poppins font-bold mb-4">{itineraryData.trip_summary}</h1>
+          <h1 className="text-4xl font-poppins font-bold mb-4">
+            Your {formData.tripLength || itineraryData.days?.length || 7}-day {formData.destination} Adventure
+          </h1>
+          
+          {/* Trip Summary Card */}
+          <Card className="mb-6 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20">
+            <CardContent className="p-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold text-lg mb-3 text-primary">Your Perfect Trip</h3>
+                  <div className="space-y-2 text-sm">
+                    <p className="flex items-center gap-2">
+                      <span className="font-medium">Designed for:</span>
+                      <span>Culture, entertainment & vibrant experiences</span>
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <span className="font-medium">Preferences:</span>
+                      <span className="text-green-600">✓ {formData.likes?.join(', ') || 'Entertainment'}</span>
+                    </p>
+                    {formData.dislikes?.length > 0 && (
+                      <p className="flex items-center gap-2">
+                        <span className="font-medium">Avoiding:</span>
+                        <span className="text-red-600">✗ {formData.dislikes.join(', ')}</span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-3 text-primary">Trip Highlights</h3>
+                  <div className="space-y-2 text-sm">
+                    <p>🏨 Accommodation guidance provided</p>
+                    <p>🎯 Activities curated to your interests</p>
+                    <p>🍽️ Dining recommendations included</p>
+                    <p>🌤️ Weather-optimized itinerary</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
           <div className="flex items-center gap-6 text-muted-foreground">
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4" />
@@ -143,7 +181,7 @@ const TripDetails = () => {
                                name: day.morning.activity_name,
                                time: 'Morning',
                                icon: '🌅',
-                               coordinates: [139.6917 + Math.random() * 0.1, 35.6895 + Math.random() * 0.1]
+                                coordinates: [-118.2437 + Math.random() * 0.1, 34.0522 + Math.random() * 0.1]
                              })}>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-20">
                             <Clock className="w-4 h-4" />
@@ -188,7 +226,7 @@ const TripDetails = () => {
                                name: day.afternoon.activity_name,
                                time: 'Afternoon', 
                                icon: '☀️',
-                               coordinates: [139.6917 + Math.random() * 0.1, 35.6895 + Math.random() * 0.1]
+                                coordinates: [-118.2437 + Math.random() * 0.1, 34.0522 + Math.random() * 0.1]
                              })}>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-20">
                             <Clock className="w-4 h-4" />
@@ -214,7 +252,7 @@ const TripDetails = () => {
                                name: day.evening.activity_name,
                                time: 'Evening',
                                icon: '🌆',
-                               coordinates: [139.6917 + Math.random() * 0.1, 35.6895 + Math.random() * 0.1]
+                                coordinates: [-118.2437 + Math.random() * 0.1, 34.0522 + Math.random() * 0.1]
                              })}>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-20">
                             <Clock className="w-4 h-4" />

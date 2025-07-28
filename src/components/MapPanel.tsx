@@ -22,7 +22,7 @@ const MapPanel: React.FC<MapPanelProps> = ({ selectedActivity }) => {
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: [139.6917, 35.6895], // Tokyo coordinates
+      center: [-118.2437, 34.0522], // Los Angeles coordinates
       zoom: 12,
     });
 
@@ -65,7 +65,7 @@ const MapPanel: React.FC<MapPanelProps> = ({ selectedActivity }) => {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg font-poppins">
           <MapPin className="w-5 h-5 text-primary" />
-          Tokyo Map
+          Los Angeles Map
         </CardTitle>
       </CardHeader>
       
