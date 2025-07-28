@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,6 +26,7 @@ interface FormData {
 
 const TripForm = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [formData, setFormData] = useState<FormData>({
     budget: '',
     startDate: undefined,
@@ -61,22 +63,55 @@ const TripForm = () => {
     setIsLoading(true);
     
     try {
-      // TODO: Replace with actual API call when backend is ready
-      // const response = await fetch('/api/generate-trips', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
-      // const trips = await response.json();
+      // Parse destination to get city and country
+      const destinationParts = formData.destination.split(',').map(part => part.trim());
+      const destinationCity = destinationParts[0] || formData.destination;
+      const destinationCountry = destinationParts[1] || 'Unknown';
+
+      // Format dates for API
+      const checkInDate = formData.startDate?.toISOString().split('T')[0];
+      const checkOutDate = formData.endDate?.toISOString().split('T')[0];
+
+      const apiPayload = {
+        budget: parseFloat(formData.budget),
+        destination_city: destinationCity,
+        destination_country: destinationCountry,
+        likes: formData.likes,
+        dislikes: formData.dislikes.length > 0 ? formData.dislikes : undefined,
+        check_in_date: checkInDate,
+        check_out_date: checkOutDate
+      };
+
+      console.log('Sending API request:', apiPayload);
+
+      const response = await fetch('http://localhost:3001/api/itinerary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(apiPayload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+      }
+
+      const itineraryData = await response.json();
+      console.log('Received itinerary:', itineraryData);
       
-      // For now, simulate API call and navigate to trip selection
-      setTimeout(() => {
-        setIsLoading(false);
-        // Navigate to trip selection with form data as state
-        navigate('/trip-selection', { state: formData });
-      }, 2000);
+      setIsLoading(false);
+      // Navigate directly to trip details with the real itinerary data
+      navigate('/trip-details/1', { 
+        state: { 
+          formData, 
+          itineraryData 
+        } 
+      });
     } catch (error) {
-      console.error('Error generating trips:', error);
+      console.error('Error generating itinerary:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate itinerary. Please make sure the backend is running and try again.",
+        variant: "destructive",
+      });
       setIsLoading(false);
     }
   };
