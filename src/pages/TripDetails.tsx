@@ -191,7 +191,7 @@ const TripDetails = () => {
 
               {/* Itinerary Tab */}
               <TabsContent value="itinerary" className="space-y-6">
-                {itineraryData.days?.map((day: any) => (
+                {itineraryData.days?.filter((day: any) => day.theme !== "Departure").map((day: any) => (
                   <Card key={day.day_number} className="rounded-xl">
                     <CardHeader>
                       <CardTitle className="flex items-center justify-between">
