@@ -153,7 +153,11 @@ const Itinerary = () => {
           {/* Right Sidebar - Map */}
           <div className="lg:col-span-3">
             <div className="sticky top-24">
-              <MapPanel selectedActivity={selectedActivity} />
+              <MapPanel 
+                selectedActivity={selectedActivity} 
+                destinationCity="Los Angeles"
+                destinationCoordinates={[-118.2437, 34.0522]}
+              />
             </div>
           </div>
         </div>

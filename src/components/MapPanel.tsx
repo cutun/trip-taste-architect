@@ -6,9 +6,11 @@ import { MapPin, Info } from 'lucide-react';
 
 interface MapPanelProps {
   selectedActivity: any;
+  destinationCity: string;
+  destinationCoordinates: [number, number];
 }
 
-const MapPanel: React.FC<MapPanelProps> = ({ selectedActivity }) => {
+const MapPanel: React.FC<MapPanelProps> = ({ selectedActivity, destinationCity, destinationCoordinates }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const marker = useRef<mapboxgl.Marker | null>(null);
@@ -22,7 +24,7 @@ const MapPanel: React.FC<MapPanelProps> = ({ selectedActivity }) => {
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: [-118.2437, 34.0522], // Los Angeles coordinates
+      center: destinationCoordinates,
       zoom: 12,
     });
 
@@ -65,7 +67,7 @@ const MapPanel: React.FC<MapPanelProps> = ({ selectedActivity }) => {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg font-poppins">
           <MapPin className="w-5 h-5 text-primary" />
-          Los Angeles Map
+          {destinationCity} Map
         </CardTitle>
       </CardHeader>
       

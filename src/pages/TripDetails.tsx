@@ -30,6 +30,40 @@ const TripDetails = () => {
   
   const [selectedActivity, setSelectedActivity] = useState(null);
   
+  // Function to get coordinates for a city
+  const getCityCoordinates = (city: string): [number, number] => {
+    const cityCoords: { [key: string]: [number, number] } = {
+      'Los Angeles': [-118.2437, 34.0522],
+      'New York': [-74.0060, 40.7128],
+      'Chicago': [-87.6298, 41.8781],
+      'Miami': [-80.1918, 25.7617],
+      'San Francisco': [-122.4194, 37.7749],
+      'Las Vegas': [-115.1398, 36.1699],
+      'Boston': [-71.0589, 42.3601],
+      'Seattle': [-122.3321, 47.6062],
+      'Denver': [-104.9903, 39.7392],
+      'Austin': [-97.7431, 30.2672]
+    };
+    return cityCoords[city] || [-118.2437, 34.0522]; // Default to LA if city not found
+  };
+
+  // Function to get coordinates for an address using geocoding approximation
+  const getLocationCoordinates = (address: string): [number, number] => {
+    // Basic geocoding approximation for common LA areas
+    if (address.includes('Universal City')) return [-118.3487, 34.1381];
+    if (address.includes('Hollywood')) return [-118.3267, 34.0928];
+    if (address.includes('Venice')) return [-118.4912, 34.0195];
+    if (address.includes('Beverly Hills')) return [-118.4065, 34.0736];
+    if (address.includes('Santa Monica')) return [-118.4912, 34.0195];
+    if (address.includes('Downtown')) return [-118.2437, 34.0522];
+    if (address.includes('Valencia')) return [-118.6009, 34.4239];
+    if (address.includes('Glendale')) return [-118.2551, 34.1425];
+    if (address.includes('Broadway')) return [-118.2467, 34.0458];
+    
+    // Default to city center
+    return getCityCoordinates(itineraryData?.days?.[0]?.morning?.address?.split(',')[1]?.trim() || 'Los Angeles');
+  };
+  
   if (!itineraryData || !formData) {
     navigate('/');
     return null;
@@ -47,7 +81,7 @@ const TripDetails = () => {
         averagePrice: day.lunch.estimated_cost_range?.max || 25,
         description: day.lunch.rationale || 'Delicious local cuisine',
         distance: day.lunch.address || 'City center',
-        coordinates: [-118.2437 + Math.random() * 0.1, 34.0522 + Math.random() * 0.1]
+        coordinates: getLocationCoordinates(day.lunch.address || '')
       });
     }
     if (day.dinner?.restaurant_name) {
@@ -59,7 +93,7 @@ const TripDetails = () => {
         averagePrice: day.dinner.estimated_cost_range?.max || 45,
         description: day.dinner.rationale || 'Perfect for dinner',
         distance: day.dinner.address || 'City center',
-        coordinates: [-118.2437 + Math.random() * 0.1, 34.0522 + Math.random() * 0.1]
+        coordinates: getLocationCoordinates(day.dinner.address || '')
       });
     }
     return dayRestaurants;
@@ -176,13 +210,13 @@ const TripDetails = () => {
                     <CardContent className="space-y-4">
                       {/* Morning Activity */}
                       {day.morning && (
-                        <div className="flex gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                             onClick={() => setSelectedActivity({
-                               name: day.morning.activity_name,
-                               time: 'Morning',
-                               icon: '🌅',
-                                coordinates: [-118.2437 + Math.random() * 0.1, 34.0522 + Math.random() * 0.1]
-                             })}>
+                         <div className="flex gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                              onClick={() => setSelectedActivity({
+                                name: day.morning.activity_name,
+                                time: 'Morning',
+                                icon: '🌅',
+                                coordinates: getLocationCoordinates(day.morning.address || '')
+                              })}>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-20">
                             <Clock className="w-4 h-4" />
                             Morning
@@ -221,13 +255,13 @@ const TripDetails = () => {
 
                       {/* Afternoon Activity */}
                       {day.afternoon && (
-                        <div className="flex gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                             onClick={() => setSelectedActivity({
-                               name: day.afternoon.activity_name,
-                               time: 'Afternoon', 
-                               icon: '☀️',
-                                coordinates: [-118.2437 + Math.random() * 0.1, 34.0522 + Math.random() * 0.1]
-                             })}>
+                         <div className="flex gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                              onClick={() => setSelectedActivity({
+                                name: day.afternoon.activity_name,
+                                time: 'Afternoon', 
+                                icon: '☀️',
+                                coordinates: getLocationCoordinates(day.afternoon.address || '')
+                              })}>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-20">
                             <Clock className="w-4 h-4" />
                             Afternoon
@@ -247,13 +281,13 @@ const TripDetails = () => {
 
                       {/* Evening Activity */}
                       {day.evening && (
-                        <div className="flex gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                             onClick={() => setSelectedActivity({
-                               name: day.evening.activity_name,
-                               time: 'Evening',
-                               icon: '🌆',
-                                coordinates: [-118.2437 + Math.random() * 0.1, 34.0522 + Math.random() * 0.1]
-                             })}>
+                         <div className="flex gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                              onClick={() => setSelectedActivity({
+                                name: day.evening.activity_name,
+                                time: 'Evening',
+                                icon: '🌆',
+                                coordinates: getLocationCoordinates(day.evening.address || '')
+                              })}>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-20">
                             <Clock className="w-4 h-4" />
                             Evening
@@ -378,7 +412,11 @@ const TripDetails = () => {
           {/* Right Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             {/* Map Panel */}
-            <MapPanel selectedActivity={selectedActivity} />
+          <MapPanel 
+            selectedActivity={selectedActivity} 
+            destinationCity={itineraryData?.days?.[0]?.morning?.address?.split(',')[1]?.trim() || 'Los Angeles'}
+            destinationCoordinates={getCityCoordinates(itineraryData?.days?.[0]?.morning?.address?.split(',')[1]?.trim() || 'Los Angeles')}
+          />
             
             {/* Budget Summary */}
             <Card className="rounded-xl sticky top-6">
