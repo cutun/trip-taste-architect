@@ -26,7 +26,7 @@ async def search_entities(query: str) -> list[dict]:
     # Assuming QLOO_API_URL and HEADERS are defined elsewhere in your file
     async with httpx.AsyncClient() as client:
         try:
-            print(f"Qloo search for '{query}'")
+            print(f"🚀 [Qloo] searching for '{query}'")
             resp = await client.get(
                 f"{QLOO_API_URL}/search",
                 params={"query": query},
@@ -104,10 +104,10 @@ async def get_recommendations(
 
     final_url = f"{QLOO_API_URL}/v2/insights"
     
-    print("--- Sending Final Recommendations Request (POST) ---")
-    print(f"URL: {final_url}")
-    print(f"PAYLOAD: {payload}")
-    print("--------------------------------------------------")
+    print("🚀 [Qloo] Sending Final Recommendations Request (POST)")
+    # print(f"URL: {final_url}")
+    # print(f"PAYLOAD: {payload}")
+    # print("--------------------------------------------------")
 
     async with httpx.AsyncClient(timeout=30.0) as client:
         try:
@@ -116,8 +116,8 @@ async def get_recommendations(
             print("✅ [Qloo] Sucessfully generated recommendations")
             return resp.json()
         except httpx.HTTPStatusError as e:
-            print(f"ERROR: Request failed. HTTP {e.response.status_code}: {e.response.text}")
+            print(f"❌ [Qloo] ERROR: Request failed. HTTP {e.response.status_code}: {e.response.text}")
             return {}
         except Exception as e:
-            print(f"An unexpected application error occurred: {e}")
+            print(f"❌ [Qloo] An unexpected application error occurred: {e}")
             raise

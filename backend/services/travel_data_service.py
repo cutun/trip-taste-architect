@@ -4,7 +4,10 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime, timedelta, date
-import json
+from geopy.geocoders import Nominatim
+import asyncio
+import math
+import time
 
 # Load environment variables from .env file
 load_dotenv()
@@ -52,6 +55,60 @@ class WeatherResult(BaseModel):
     description: str
     icon_code: str
 
+# --- Helper Functions ---
+
+async def geocode_to_address(lat: float, lon: float) -> str:
+    """
+    Converts latitude and longitude coordinates to a formatted address string.
+
+    This function takes geographic coordinates and uses the Nominatim geocoding
+    service (based on OpenStreetMap data) to find the corresponding
+    physical address. It then formats it into a clean, readable string.
+
+    Args:
+        lat: The latitude of the location.
+        lon: The longitude of the location.
+
+    Returns:
+        A formatted address string in the format "Street, City, Post, Country".
+        If a component is not available, it is omitted. Returns an error
+        message if the address cannot be found.
+    """
+    # Initialize the geolocator with a unique user agent
+    geolocator = Nominatim(user_agent="my_personal_address_converter")
+    coordinates = f"{lat}, {lon}"
+
+    try:
+        # Perform the reverse geocoding lookup
+        location = geolocator.reverse(coordinates, language='en')
+
+        # Check if a location was found and has address data
+        if location and 'address' in location.raw:
+            address_parts = location.raw['address']
+
+            # Safely extract address components using .get() to avoid errors
+            # if a key does not exist.
+            road = address_parts.get('road', '')
+            house_number = address_parts.get('house_number', '')
+            city = address_parts.get('city', address_parts.get('town', '')) # Fallback to 'town'
+            postcode = address_parts.get('postcode', '')
+            country = address_parts.get('country', '')
+
+            # Combine house number and road to form a street address
+            street_address = f"{house_number} {road}".strip()
+
+            # Create a list of the parts that are not empty
+            final_address_parts = [part for part in [street_address, city, postcode, country] if part]
+
+            # Join the parts with a comma and space
+            return ", ".join(final_address_parts)
+        else:
+            return "N/A"
+
+    except Exception as e:
+        # Handle potential network errors or other issues
+        return f"An error occurred during geocoding: {e}"
+
 # --- OpenWeather API Service Functions ---
 
 async def get_weather_forecast(city_name: str) -> List[WeatherResult]:
@@ -60,7 +117,7 @@ async def get_weather_forecast(city_name: str) -> List[WeatherResult]:
     Note: The free OpenWeather plan often provides a 5-day forecast with 3-hour intervals.
     We will aggregate this to get a daily average.
     """
-    print(f"\n--- [OpenWeather] Fetching 5-day forecast for '{city_name}'... ---")
+    print(f"\n🚀 [OpenWeather] Fetching 5-day forecast for '{city_name}'...")
     params = {
         "q": city_name,
         "appid": OPENWEATHER_KEY,
@@ -113,7 +170,7 @@ async def get_weather_forecast(city_name: str) -> List[WeatherResult]:
 
 async def get_amadeus_access_token() -> Optional[str]:
     """Authenticates with Amadeus to get an API access token."""
-    print("--- [Amadeus] Attempting to get access token... ---")
+    print("🚀 [Amadeus] Attempting to get access token...")
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     data = {
         "grant_type": "client_credentials",
@@ -133,7 +190,7 @@ async def get_amadeus_access_token() -> Optional[str]:
 
 async def get_city_code(city_name: str, access_token: str) -> Optional[str]:
     """Gets the IATA city code required for hotel searches."""
-    print(f"--- [Amadeus] Fetching IATA city code for '{city_name}'... ---")
+    print(f"🚀 [Amadeus] Fetching IATA city code for '{city_name}'...")
     headers = {"Authorization": f"Bearer {access_token}"}
     params = {"keyword": city_name, "subType": "CITY"}
     url = f"{AMADEUS_API_BASE_URL}/v1/reference-data/locations"
@@ -151,7 +208,7 @@ async def get_city_code(city_name: str, access_token: str) -> Optional[str]:
                 print(f"⚠️ [Amadeus] No IATA code found for '{city_name}'.")
                 return None
         except httpx.HTTPStatusError as e:
-            print(f"❌ ERROR [Amadeus] getting city code: {e.response.status_code} - {e.response.text}")
+            print(f"❌ [Amadeus] ERROR getting city code: {e.response.status_code} - {e.response.text}")
             return None
 
 async def list_hotels(
@@ -166,6 +223,8 @@ async def list_hotels(
     headers = {"Authorization": f"Bearer {access_token}"}
     params = {"cityCode": city_code, "radius": 20, "radiusUnit": "KM"}
     url = f"{AMADEUS_API_BASE_URL}/v1/reference-data/locations/hotels/by-city"
+
+    print(f"\n🚀 [Amadeus] Listing hotels for '{city_name}'")
 
     async with httpx.AsyncClient(timeout=30.0) as client:
         try:
@@ -183,68 +242,101 @@ async def google_hotels(
     city_name: str,
     check_in_date: date = None,
     check_out_date: date = None,
+    adults: int = 1,
+    children: int = 1,
+    rooms: int = 1
 ) -> List[HotelResult]:
-    """Searches for hotels in a given city using the Amadeus API."""
-    print(f"\n--- [Amadeus] Starting hotel search for '{city_name}' ---")
+    """Searches for hotels in a given city using the Amadeus API with concurrent geocoding."""
+    
+    print(f"\n🚀 [Amadeus] Starting hotel search for '{city_name}'")
+    if (check_out_date - check_in_date).days <= 0:
+        print("⚠️ [Amadeus] Invalid date range: Check-out date must be after check-in date.")
+        return []
+
+    if rooms <= 0:
+        print("⚠️ [Amadeus] Invalid room number: Rooms must be a positive integer.")
+        return []
+
     access_token = await get_amadeus_access_token()
     if not access_token: return []
 
     city_code = await get_city_code(city_name, access_token)
     if not city_code: return []
 
-    hotelId_list = (await list_hotels(city_name, access_token, city_code))
+    hotelId_list = await list_hotels(city_name, access_token, city_code)
     if not hotelId_list: return []
 
     headers = {"Authorization": f"Bearer {access_token}"}
     url = f"{AMADEUS_API_BASE_URL}/v3/shopping/hotel-offers"
+    api_results = []
 
-    standardized_results = []
-
-    for i in range(0, len(hotelId_list), 50):
-        params = {
-            "hotelIds": hotelId_list[i:i+50],
-            "adults": 1,
-            "checkInDate": check_in_date.strftime("%Y-%m-%d"),
-            "checkOutDate": check_out_date.strftime("%Y-%m-%d"),
-            "paymentPolicy": "NONE",
-            "bestRateOnly": "true",
-            "view": "FULL",
-            "sort": "PRICE",
-        }
-
-        async with httpx.AsyncClient(timeout=30.0) as client:
+    # Fetch all hotel offers first
+    batch_size = 50
+    async with httpx.AsyncClient(timeout=120.0) as client:
+        for i in range(0, len(hotelId_list), batch_size):
             try:
+                params = {
+                    "hotelIds": hotelId_list[i:i+batch_size],
+                    "adults": math.ceil((adults + children/2) / rooms), # adults per room
+                    "checkInDate": check_in_date.strftime("%Y-%m-%d"),
+                    "checkOutDate": check_out_date.strftime("%Y-%m-%d"),
+                    "roomQuantity": rooms,
+                    "includeClosed": "false",
+                    "paymentPolicy": "NONE",
+                    "bestRateOnly": "true",
+                    "view": "FULL",
+                    "sort": "PRICE",
+                }
                 response = await client.get(url, headers=headers, params=params)
                 response.raise_for_status()
-                api_results = response.json().get("data", [])
-                
-
-                for offer in api_results:
-                    if offer.get('available') and 'hotel' in offer and 'offers' in offer:
-                        hotel_data = offer['hotel']
-                        offer_data = offer['offers'][0]
-                        address_parts = [
-                            hotel_data.get('address', {}).get('lines', [''])[0],
-                            hotel_data.get('address', {}).get('cityName'),
-                            hotel_data.get('address', {}).get('postalCode')
-                        ]
-                        full_address = ', '.join(filter(None, address_parts))
-                        hotel = HotelResult(
-                            hotel_id=hotel_data.get('hotelId'),
-                            name=hotel_data.get('name'),
-                            latitude=hotel_data.get('latitude'),
-                            longitude=hotel_data.get('longitude'),
-                            address=full_address,
-                            total_price=float(offer_data.get('price', {}).get('total', 0)),
-                            currency=offer_data.get('price', {}).get('currency', 'EUR')
-                        )
-                        standardized_results.append(hotel)
-                print(f"✅ [Amadeus] Standardized {len(standardized_results)} hotel results")
-                return standardized_results
+                api_results.extend(response.json().get("data", []))
             except httpx.HTTPStatusError as e:
-                print(f"❌ ERROR [Amadeus] during hotel offers search: {e.response.status_code} - {e.response.text}")
+                print(f"❌ [Amadeus] ERROR during hotel offers search: {e.response.status_code} - {e.response.text}")
                 return []
+            except Exception as e:
+                # This is the new block that catches ALL other errors
+                print(f"❌ [Amadeus] UNEXPECTED ERROR: {type(e).__name__} - {e}")
+                return []
+            time.sleep(1)
+            
+    print(f"🚀 [Amadeus] Processing {len(api_results)} hotel listings")
 
+    # Prepare and run geocoding tasks concurrently
+    geocoding_tasks = []
+    valid_offers = []
+    for offer in api_results:
+        if offer.get('available') and 'hotel' in offer and 'offers' in offer:
+            hotel_data = offer['hotel']
+            lat = hotel_data.get('latitude')
+            lon = hotel_data.get('longitude')
+            # Create a task for each valid offer's geocoding lookup
+            geocoding_tasks.append(geocode_to_address(lat, lon))
+            valid_offers.append(offer)
+
+    # Run all tasks at once
+    print(f"🚀 [Geocoder] Starting {len(geocoding_tasks)} concurrent address lookups...")
+    addresses = await asyncio.gather(*geocoding_tasks)
+    print("✅ [Geocoder] All addresses retrieved.")
+
+    # 4. Combine results
+    standardized_results = []
+    for i, offer in enumerate(valid_offers):
+        hotel_data = offer['hotel']
+        offer_data = offer['offers'][0]
+        hotel = HotelResult(
+            hotel_id=hotel_data.get('hotelId'),
+            name=hotel_data.get('name'),
+            latitude=hotel_data.get('latitude'),
+            longitude=hotel_data.get('longitude'),
+            address=addresses[i],  # Use the result from the gathered tasks
+            total_price=float(offer_data.get('price', {}).get('total', 0)),
+            currency=offer_data.get('price', {}).get('currency', 'EUR')
+        )
+        standardized_results.append(hotel)
+
+    print(f"✅ [Amadeus] Standardized {len(standardized_results)} hotel results")
+    return standardized_results
+        
 
 # --- Viator API Service Functions ---
 
@@ -263,7 +355,7 @@ async def get_viator_destination_id(city_name: str) -> Optional[str]:
                     return dest["destinationId"]
             return None
         except httpx.HTTPStatusError as e:
-            print(f"❌ ERROR [Viator] getting destination ID: {e.response.status_code} - {e.response.text}")
+            print(f"❌ [Viator] ERROR getting destination ID: {e.response.status_code} - {e.response.text}")
             return None
 
 async def search_activities(city_name: str) -> List[ActivityResult]:
@@ -301,5 +393,5 @@ async def search_activities(city_name: str) -> List[ActivityResult]:
                 standardized_results.append(activity)
             return standardized_results
         except httpx.HTTPStatusError as e:
-            print(f"❌ ERROR [Viator] during activity search: {e.response.status_code} - {e.response.text}")
+            print(f"❌ [Viator] ERROR during activity search: {e.response.status_code} - {e.response.text}")
             return []

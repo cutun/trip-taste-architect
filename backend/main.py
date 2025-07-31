@@ -28,13 +28,16 @@ class ItineraryRequest(BaseModel):
     
     check_in_date: date = Field(default_factory=lambda: date.today() + timedelta(days=30))
     check_out_date: date = Field(default_factory=lambda: date.today() + timedelta(days=37))
+    adults: Optional[int] = Field(1, example=1, description="Number of adults on the trip")
+    children: Optional[int] = Field(0, example=1, description="Number of childrens on the trip")
+    rooms: Optional[int] = Field(1, example=1, description="Number of rooms for hotel")
 
     @model_validator(mode='after')
     def validate_dates(self) -> 'ItineraryRequest':
         if self.check_in_date and self.check_out_date:
-            if self.check_in_date >= self.check_out_date:
+            if self.check_in_date > self.check_out_date:
                 raise ValueError("check_out_date must be after check_in_date")
-            self.trip_length = (self.check_out_date - self.check_in_date).days
+            self.trip_length = (self.check_out_date - self.check_in_date).days + 1
         return self
 
 
@@ -77,6 +80,9 @@ async def create_itinerary(request: ItineraryRequest):
         city_name=request.destination_city,
         check_in_date=request.check_in_date,
         check_out_date=request.check_out_date,
+        adults=request.adults,
+        children=request.children,
+        rooms=request.rooms,
     )
     activity_task = travel_data_service.search_activities(request.destination_city)
     weather_task = travel_data_service.get_weather_forecast(request.destination_city)
@@ -111,8 +117,13 @@ async def create_itinerary(request: ItineraryRequest):
     )
 
     if not final_itinerary or "error" in final_itinerary or "days" not in final_itinerary:
+        print("\n--- ❌ Failed to generate a final itinerary ---")
         raise HTTPException(status_code=500, detail="Failed to generate itinerary from the LLM.")
 
     print("\n--- Step 3: Successfully Generated Weather-Aware Itinerary ---")
-    
+
+    formatted_itinerary = json.dumps(final_itinerary, indent=2)
+    print(formatted_itinerary)
+        
+
     return final_itinerary

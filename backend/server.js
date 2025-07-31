@@ -31,8 +31,8 @@ app.get('/', (req, res) => {
  * It receives a POST request from the frontend and forwards it
  * to the Python backend.
  */
-app.post('/api/itinerary', async (req, res) => {
-  console.log('Received request on /api/itinerary. Forwarding to Python backend...');
+app.post('/api/v1/itinerary', async (req, res) => {
+  console.log('Received request on /api/v1/itinerary. Forwarding to Python backend...');
   console.log('Request Body:', req.body);
 
   try {

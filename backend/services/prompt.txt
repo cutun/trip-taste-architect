@@ -9,16 +9,19 @@ CRITICAL INSTRUCTIONS
 ---
 
 **Hotel Selection Logic:**
-1.  **Primary Goal (Budget Fits):** Attempt to allocate a reasonable portion of the `{budget}` (e.g., 30-50%) to accommodation. If the cheapest hotel's total cost (`price_per_night` * `{trip_length}`) fits within this allocated amount, select it and proceed.
+1.  **Primary Goal (Budget Fits):** Attempt to allocate a reasonable q portion of the `{budget}` (e.g., 30-50%) to accommodation. If the cheapest hotel's total cost (`price_per_night` * `{trip_length}`) fits within this allocated amount, select it and proceed.
 2.  **Fallback (Budget Exceeded):** If even the absolute cheapest hotel's total cost exceeds a reasonable accommodation budget, you must trigger a special procedure:
     * In the `trip_summary`, you **MUST** state clearly that no hotels fit the budget and that the user **needs to book their own accommodation separately**.
     * In the `budget_allocation` section, set `accommodation_budget_total` to `0`.
     * Re-allocate the **entire** `{budget}` across the remaining categories (food, activities, transportation, shopping). The user's provided budget should now only cover these items.
-    * In the `hotel_details` section, set the `name` to `"ACTION REQUIRED: Please Book Your Own Accommodation"` and fill the other fields with `null` or `N/A`.
+    * In the `hotel_details` section, set the `name` to `"ACTION REQUIRED: Please Book Your Own Accommodation"` and fill the other fields with `null`.
+3. **If it is a single day trip, you do not need to look for a hotel. In the `hotel_details` section, set the `name` to `"N/A"` and fill the other fields with `null`**
 
 **General Instructions:**
 - For each activity and meal, you MUST provide an estimated cost as a numerical range in USD.
 - Consider the daily weather forecast for all activity planning. Prioritize indoor activities if the weather is rain or snow.
+- For each day, suggest 1-2 alternative activities in the alternative_activities array. These should offer variety in terms of cost, interest, or energy level.
+- In the alternative_hotel_options section, list 1-2 hotels from the available data that are more expensive than the selected one but offer better amenities or location. If no hotels were selected due to budget, you may still suggest premium options here.
 - Output ONLY a single, valid JSON object with no other text, comments, or markdown.
 - Ensure the itinerary includes a hotel check-in on Day 1 and check-out on Day {trip_length}. Check-in must happen no earlier than afternoon, and check-out must happen in the morning.
 
@@ -67,8 +70,19 @@ Strictly adhere to this JSON structure.
     "hotelId": "[HotelID of the selected hotel, or null if none was chosen]",
     "address": "[Address of the selected hotel, or 'N/A' if none was chosen]",
     "total_price_for_stay": "[Calculated total price for the stay, or null if none was chosen]",
-    "currency": "[Currency Code, or null if none was chosen]"
+    "currency": "[Currency Code, or null if none was chosen]",
+    "rationale": "[Why choose this hotel (e.g., good location, good price, anemities,etc.).]"
   }},
+  "alternative_hotel_options": [
+    {{
+      "name": "[Name of a more premium hotel option]",
+      "hotelId": "[HotelID of the alternative hotel]",
+      "address": "[Address of the alternative hotel]",
+      "price_per_night": "[Price per night of the alternative hotel]",
+      "currency": "[Currency Code]",
+      "rationale": "[Why this hotel offers a better experience (e.g., better location, amenities, etc.).]"
+    }}
+  ],
   "days": [
     {{
       "day_number": 1,
@@ -88,6 +102,8 @@ Strictly adhere to this JSON structure.
         "estimated_duration_hours": [Number],
         "estimated_cost_level": "[low, medium, high]",
         "address": "[Address of activity]",
+        "lat": "[latitude given by Qloo if avaliable, otherwise null]",
+        "lon": "[longitude given by Qloo if avaliable, otherwise null]",
         "website": "[Website URL if available, otherwise null]",
         "estimated_cost_range": {{ "min": 0, "max": 0 }},
       }},
@@ -98,6 +114,8 @@ Strictly adhere to this JSON structure.
         "rationale": "[Why this restaurant fits the plan/taste]",
         "estimated_cost_level": "[low, medium, high]",
         "address": "[Address of restaurant]",
+        "lat": "[latitude given by Qloo if avaliable, otherwise null]",
+        "lon": "[longitude given by Qloo if avaliable, otherwise null]",
         "website": "[Website URL if available, otherwise null]",
         "estimated_cost_range": {{ "min": 0, "max": 0 }},
       }},
@@ -110,6 +128,8 @@ Strictly adhere to this JSON structure.
         "estimated_duration_hours": [Number],
         "estimated_cost_level": "[low, medium, high]",
         "address": "[Address of activity]",
+        "lat": "[latitude given by Qloo if avaliable, otherwise null]",
+        "lon": "[longitude given by Qloo if avaliable, otherwise null]",
         "website": "[Website URL if available, otherwise null]",
         "estimated_cost_range": {{ "min": 0, "max": 0 }},
       }},
@@ -122,6 +142,8 @@ Strictly adhere to this JSON structure.
         "estimated_duration_hours": [Number],
         "estimated_cost_level": "[low, medium, high]",
         "address": "[Address of activity]",
+        "lat": "[latitude given by Qloo if avaliable, otherwise null]",
+        "lon": "[longitude given by Qloo if avaliable, otherwise null]",
         "website": "[Website URL if available, otherwise null]",
         "estimated_cost_range": {{ "min": 0, "max": 0 }},
       }},
@@ -132,9 +154,28 @@ Strictly adhere to this JSON structure.
         "rationale": "[Rationale]",
         "estimated_cost_level": "[low, medium, high]",
         "address": "[Address of restaurant]",
+        "lat": "[latitude given by Qloo if avaliable, otherwise null]",
+        "lon": "[longitude given by Qloo if avaliable, otherwise null]",
         "website": "[Website URL if available, otherwise null]",
         "estimated_cost_range": {{ "min": 0, "max": 0 }},
-      }}
+      }},
+      "alternative_activities": [
+        {{
+          "activity_name": "[Alternative Activity Name]",
+          "qloo_poi_id": "[Qloo Entity ID or other unique ID]",
+          "time_of_day": "['morning', 'afternoon', or 'evening']",
+          "type": "[Type of POI]",
+          "description": "[Brief description of the alternative activity]",
+          "rationale": "[Why this is a good alternative. e.g., 'If you want a more relaxed afternoon, consider...']",
+          "estimated_cost_level": "[low, medium, high]",
+          "address": "[Address of activity]",
+          "lat": "[latitude given by Qloo if avaliable, otherwise null]",
+          "lon": "[longitude given by Qloo if avaliable, otherwise null]",
+          "website": "[Website URL if available, otherwise null]",
+          "estimated_cost_range": {{ "min": 0, "max": 0 }}
+        }},
+        // ... Provide a list of all sensible alternative activities for the day, varied in terms of cost, interest, or energy level.
+      ]
     }}
     // ... This day structure repeats for all {trip_length} days.
   ]
