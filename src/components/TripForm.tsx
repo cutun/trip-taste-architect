@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,13 @@ interface FormData {
   dislikes: string[];
 }
 
+interface DestinationSuggestion {
+  place_id: string;
+  display_name: string;
+  city: string;
+  country: string;
+}
+
 const TripForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -40,6 +47,11 @@ const TripForm = () => {
   });
   
   const [isLoading, setIsLoading] = useState(false);
+  const [destinationSuggestions, setDestinationSuggestions] = useState<DestinationSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+  const destinationInputRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   // Predefined options for likes/dislikes
   const preferenceOptions = [
@@ -57,6 +69,77 @@ const TripForm = () => {
         : [...prev[type], option]
     }));
   };
+
+  // Search for destination suggestions using Nominatim API
+  const searchDestinations = async (query: string) => {
+    if (query.length < 3) {
+      setDestinationSuggestions([]);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&countrycodes=us,ca,mx,gb,fr,de,it,es,jp,au,nz,th,sg,my,in,cn,kr&q=${encodeURIComponent(query)}`
+      );
+      const data = await response.json();
+      
+      const suggestions: DestinationSuggestion[] = data
+        .filter((item: any) => item.address && (item.address.city || item.address.town || item.address.village))
+        .map((item: any) => ({
+          place_id: item.place_id,
+          display_name: item.display_name,
+          city: item.address.city || item.address.town || item.address.village,
+          country: item.address.country
+        }))
+        .slice(0, 5);
+      
+      setDestinationSuggestions(suggestions);
+    } catch (error) {
+      console.error('Error fetching destination suggestions:', error);
+      setDestinationSuggestions([]);
+    }
+  };
+
+  const handleDestinationChange = (value: string) => {
+    setFormData(prev => ({ ...prev, destination: value }));
+    setShowSuggestions(true);
+    
+    // Clear previous timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+    
+    // Set new timeout to search after user stops typing
+    const newTimeout = setTimeout(() => {
+      searchDestinations(value);
+    }, 300);
+    
+    setSearchTimeout(newTimeout);
+  };
+
+  const selectDestination = (suggestion: DestinationSuggestion) => {
+    const destinationString = `${suggestion.city}, ${suggestion.country}`;
+    setFormData(prev => ({ ...prev, destination: destinationString }));
+    setShowSuggestions(false);
+    setDestinationSuggestions([]);
+  };
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        destinationInputRef.current &&
+        suggestionsRef.current &&
+        !destinationInputRef.current.contains(event.target as Node) &&
+        !suggestionsRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,7 +167,7 @@ const TripForm = () => {
 
       console.log('Sending API request:', apiPayload);
 
-      const response = await fetch('http://localhost:3001/api/itinerary', {
+      const response = await fetch('http://localhost:3001/api/v1/itinerary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(apiPayload)
@@ -224,20 +307,51 @@ const TripForm = () => {
                 </div>
 
                 {/* Destination */}
-                <div className="space-y-2">
+                <div className="space-y-2 relative">
                   <Label htmlFor="destination" className="flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-primary" />
                     Destination
                   </Label>
-                  <Input
-                    id="destination"
-                    type="text"
-                    placeholder="Tokyo, Japan"
-                    className="rounded-xl"
-                    value={formData.destination}
-                    onChange={(e) => setFormData(prev => ({ ...prev, destination: e.target.value }))}
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      ref={destinationInputRef}
+                      id="destination"
+                      type="text"
+                      placeholder="San Francisco, United States"
+                      className="rounded-xl"
+                      value={formData.destination}
+                      onChange={(e) => handleDestinationChange(e.target.value)}
+                      onFocus={() => setShowSuggestions(true)}
+                      required
+                      autoComplete="off"
+                    />
+                    
+                    {/* Destination Suggestions */}
+                    {showSuggestions && destinationSuggestions.length > 0 && (
+                      <div
+                        ref={suggestionsRef}
+                        className="absolute top-full left-0 right-0 z-50 bg-background border border-border rounded-xl shadow-lg mt-1 max-h-60 overflow-y-auto"
+                      >
+                        {destinationSuggestions.map((suggestion) => (
+                          <div
+                            key={suggestion.place_id}
+                            className="p-3 hover:bg-muted cursor-pointer border-b border-border last:border-b-0 first:rounded-t-xl last:rounded-b-xl"
+                            onClick={() => selectDestination(suggestion)}
+                          >
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-4 h-4 text-muted-foreground" />
+                              <div>
+                                <div className="font-medium">{suggestion.city}, {suggestion.country}</div>
+                                <div className="text-sm text-muted-foreground truncate">
+                                  {suggestion.display_name}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* People & Rooms */}

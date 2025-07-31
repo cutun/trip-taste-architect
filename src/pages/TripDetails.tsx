@@ -47,21 +47,28 @@ const TripDetails = () => {
     return cityCoords[city] || [-118.2437, 34.0522]; // Default to LA if city not found
   };
 
-  // Function to get coordinates for an address using geocoding approximation
-  const getLocationCoordinates = (address: string): [number, number] => {
-    // Basic geocoding approximation for common LA areas
-    if (address.includes('Universal City')) return [-118.3487, 34.1381];
-    if (address.includes('Hollywood')) return [-118.3267, 34.0928];
-    if (address.includes('Venice')) return [-118.4912, 34.0195];
-    if (address.includes('Beverly Hills')) return [-118.4065, 34.0736];
-    if (address.includes('Santa Monica')) return [-118.4912, 34.0195];
-    if (address.includes('Downtown')) return [-118.2437, 34.0522];
-    if (address.includes('Valencia')) return [-118.6009, 34.4239];
-    if (address.includes('Glendale')) return [-118.2551, 34.1425];
-    if (address.includes('Broadway')) return [-118.2467, 34.0458];
+  // Function to get coordinates for an address or activity
+  const getLocationCoordinates = (activity: any, address?: string): [number, number] => {
+    // Use coordinates from API if available
+    if (activity?.lat && activity?.lon) {
+      return [activity.lon, activity.lat];
+    }
     
-    // Default to city center
-    return getCityCoordinates(itineraryData?.days?.[0]?.morning?.address?.split(',')[1]?.trim() || 'Los Angeles');
+    // Fallback to address-based approximation for specific areas
+    const addressToCheck = address || activity?.address || '';
+    if (addressToCheck.includes('Universal City')) return [-118.3487, 34.1381];
+    if (addressToCheck.includes('Hollywood')) return [-118.3267, 34.0928];
+    if (addressToCheck.includes('Venice')) return [-118.4912, 34.0195];
+    if (addressToCheck.includes('Beverly Hills')) return [-118.4065, 34.0736];
+    if (addressToCheck.includes('Santa Monica')) return [-118.4912, 34.0195];
+    if (addressToCheck.includes('Downtown')) return [-118.2437, 34.0522];
+    if (addressToCheck.includes('Valencia')) return [-118.6009, 34.4239];
+    if (addressToCheck.includes('Glendale')) return [-118.2551, 34.1425];
+    if (addressToCheck.includes('Broadway')) return [-118.2467, 34.0458];
+    
+    // Default to destination city center
+    const destinationCity = formData?.destination?.split(',')[0]?.trim() || 'Los Angeles';
+    return getCityCoordinates(destinationCity);
   };
   
   if (!itineraryData || !formData) {
@@ -81,7 +88,7 @@ const TripDetails = () => {
         averagePrice: day.lunch.estimated_cost_range?.max || 25,
         description: day.lunch.rationale || 'Delicious local cuisine',
         distance: day.lunch.address || 'City center',
-        coordinates: getLocationCoordinates(day.lunch.address || '')
+        coordinates: getLocationCoordinates(day.lunch, day.lunch.address)
       });
     }
     if (day.dinner?.restaurant_name) {
@@ -93,7 +100,7 @@ const TripDetails = () => {
         averagePrice: day.dinner.estimated_cost_range?.max || 45,
         description: day.dinner.rationale || 'Perfect for dinner',
         distance: day.dinner.address || 'City center',
-        coordinates: getLocationCoordinates(day.dinner.address || '')
+        coordinates: getLocationCoordinates(day.dinner, day.dinner.address)
       });
     }
     return dayRestaurants;
@@ -215,7 +222,7 @@ const TripDetails = () => {
                                 name: day.morning.activity_name,
                                 time: 'Morning',
                                 icon: '🌅',
-                                coordinates: getLocationCoordinates(day.morning.address || '')
+                                coordinates: getLocationCoordinates(day.morning, day.morning.address)
                               })}>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-20">
                             <Clock className="w-4 h-4" />
@@ -260,7 +267,7 @@ const TripDetails = () => {
                                 name: day.afternoon.activity_name,
                                 time: 'Afternoon', 
                                 icon: '☀️',
-                                coordinates: getLocationCoordinates(day.afternoon.address || '')
+                                coordinates: getLocationCoordinates(day.afternoon, day.afternoon.address)
                               })}>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-20">
                             <Clock className="w-4 h-4" />
@@ -286,7 +293,7 @@ const TripDetails = () => {
                                 name: day.evening.activity_name,
                                 time: 'Evening',
                                 icon: '🌆',
-                                coordinates: getLocationCoordinates(day.evening.address || '')
+                                coordinates: getLocationCoordinates(day.evening, day.evening.address)
                               })}>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-20">
                             <Clock className="w-4 h-4" />
@@ -412,10 +419,10 @@ const TripDetails = () => {
           {/* Right Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             {/* Map Panel */}
-          <MapPanel 
+           <MapPanel 
             selectedActivity={selectedActivity} 
-            destinationCity={itineraryData?.days?.[0]?.morning?.address?.split(',')[1]?.trim() || 'Los Angeles'}
-            destinationCoordinates={getCityCoordinates(itineraryData?.days?.[0]?.morning?.address?.split(',')[1]?.trim() || 'Los Angeles')}
+            destinationCity={formData?.destination?.split(',')[0]?.trim() || 'Los Angeles'}
+            destinationCoordinates={getCityCoordinates(formData?.destination?.split(',')[0]?.trim() || 'Los Angeles')}
           />
             
             {/* Budget Summary */}
