@@ -229,10 +229,10 @@ const TripDetails = () => {
                             Morning
                           </div>
                           <div className="flex-1">
-                            <h4 className="font-medium mb-1">{day.morning.activity_name}</h4>
+                            <h4 className="font-medium mb-1">{day.morning.activity_name || 'Activity'}</h4>
                             <p className="text-sm text-muted-foreground mb-2">{day.morning.description}</p>
                             <div className="flex items-center gap-4 text-sm">
-                              <span className="text-muted-foreground">Duration: {day.morning.estimated_duration_hours}h</span>
+                              <span className="text-muted-foreground">Duration: {day.morning.estimated_duration_hours || 2}h</span>
                               {day.morning.estimated_cost_range?.max > 0 && (
                                 <Badge variant="secondary">${day.morning.estimated_cost_range.min}-${day.morning.estimated_cost_range.max}</Badge>
                               )}
@@ -249,8 +249,8 @@ const TripDetails = () => {
                             Lunch
                           </div>
                           <div className="flex-1">
-                            <h4 className="font-medium mb-1">{day.lunch.restaurant_name}</h4>
-                            <p className="text-sm text-muted-foreground mb-2">{day.lunch.cuisine} - {day.lunch.rationale}</p>
+                            <h4 className="font-medium mb-1">{day.lunch.restaurant_name || 'Restaurant'}</h4>
+                            <p className="text-sm text-muted-foreground mb-2">{day.lunch.cuisine || 'Cuisine'} - {day.lunch.rationale || 'Great local option'}</p>
                             <div className="flex items-center gap-4 text-sm">
                               {day.lunch.estimated_cost_range && (
                                 <Badge variant="secondary">${day.lunch.estimated_cost_range.min}-${day.lunch.estimated_cost_range.max}</Badge>
@@ -274,10 +274,10 @@ const TripDetails = () => {
                             Afternoon
                           </div>
                           <div className="flex-1">
-                            <h4 className="font-medium mb-1">{day.afternoon.activity_name}</h4>
+                            <h4 className="font-medium mb-1">{day.afternoon.activity_name || 'Activity'}</h4>
                             <p className="text-sm text-muted-foreground mb-2">{day.afternoon.description}</p>
                             <div className="flex items-center gap-4 text-sm">
-                              <span className="text-muted-foreground">Duration: {day.afternoon.estimated_duration_hours}h</span>
+                              <span className="text-muted-foreground">Duration: {day.afternoon.estimated_duration_hours || 2}h</span>
                               {day.afternoon.estimated_cost_range?.max > 0 && (
                                 <Badge variant="secondary">${day.afternoon.estimated_cost_range.min}-${day.afternoon.estimated_cost_range.max}</Badge>
                               )}
@@ -300,10 +300,10 @@ const TripDetails = () => {
                             Evening
                           </div>
                           <div className="flex-1">
-                            <h4 className="font-medium mb-1">{day.evening.activity_name}</h4>
+                            <h4 className="font-medium mb-1">{day.evening.activity_name || 'Activity'}</h4>
                             <p className="text-sm text-muted-foreground mb-2">{day.evening.description}</p>
                             <div className="flex items-center gap-4 text-sm">
-                              <span className="text-muted-foreground">Duration: {day.evening.estimated_duration_hours}h</span>
+                              <span className="text-muted-foreground">Duration: {day.evening.estimated_duration_hours || 2}h</span>
                               {day.evening.estimated_cost_range?.max > 0 && (
                                 <Badge variant="secondary">${day.evening.estimated_cost_range.min}-${day.evening.estimated_cost_range.max}</Badge>
                               )}
@@ -320,8 +320,8 @@ const TripDetails = () => {
                             Dinner
                           </div>
                           <div className="flex-1">
-                            <h4 className="font-medium mb-1">{day.dinner.restaurant_name}</h4>
-                            <p className="text-sm text-muted-foreground mb-2">{day.dinner.cuisine} - {day.dinner.rationale}</p>
+                            <h4 className="font-medium mb-1">{day.dinner.restaurant_name || 'Restaurant'}</h4>
+                            <p className="text-sm text-muted-foreground mb-2">{day.dinner.cuisine || 'Cuisine'} - {day.dinner.rationale || 'Perfect dining experience'}</p>
                             <div className="flex items-center gap-4 text-sm">
                               {day.dinner.estimated_cost_range && (
                                 <Badge variant="secondary">${day.dinner.estimated_cost_range.min}-${day.dinner.estimated_cost_range.max}</Badge>
@@ -337,21 +337,36 @@ const TripDetails = () => {
 
               {/* Hotels Tab */}
               <TabsContent value="hotels" className="space-y-4">
+                {/* Primary Hotel */}
                 <Card className="rounded-xl">
                   <CardContent className="p-6">
-                    <div className="flex items-center gap-4 mb-4">
-                      <Hotel className="w-6 h-6 text-primary" />
-                      <div>
-                        <h4 className="font-medium">{itineraryData.hotel_details?.name || 'Hotel Accommodation'}</h4>
-                        <p className="text-sm text-muted-foreground">{itineraryData.hotel_details?.address || 'Please book separately'}</p>
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center gap-4">
+                        <Hotel className="w-6 h-6 text-primary" />
+                        <div>
+                          <h4 className="font-medium text-lg">{itineraryData.hotel_details?.name || 'Hotel Accommodation Required'}</h4>
+                          <p className="text-sm text-muted-foreground">{itineraryData.hotel_details?.address || 'Please book separately'}</p>
+                          {itineraryData.hotel_details?.hotelId && (
+                            <p className="text-xs text-muted-foreground">Hotel ID: {itineraryData.hotel_details.hotelId}</p>
+                          )}
+                        </div>
                       </div>
+                      {itineraryData.hotel_details?.total_price_for_stay && (
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-primary">${itineraryData.hotel_details.total_price_for_stay}</p>
+                          <p className="text-sm text-muted-foreground">Total stay • {itineraryData.hotel_details.currency}</p>
+                        </div>
+                      )}
                     </div>
-                    {itineraryData.hotel_details?.total_price_for_stay && (
-                      <div className="text-right">
-                        <p className="text-lg font-bold">${itineraryData.hotel_details.total_price_for_stay}</p>
-                        <p className="text-sm text-muted-foreground">{itineraryData.hotel_details.currency}</p>
+                    
+                    {itineraryData.hotel_details?.rationale && (
+                      <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg mb-4">
+                        <p className="text-sm text-blue-800 dark:text-blue-200">
+                          <strong>Why this hotel:</strong> {itineraryData.hotel_details.rationale}
+                        </p>
                       </div>
                     )}
+                    
                     {!itineraryData.hotel_details?.total_price_for_stay && (
                       <div className="bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg">
                         <p className="text-sm text-yellow-800 dark:text-yellow-200">
@@ -361,6 +376,44 @@ const TripDetails = () => {
                     )}
                   </CardContent>
                 </Card>
+
+                {/* Alternative Hotels */}
+                {itineraryData.alternative_hotel_options?.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Alternative Options</h3>
+                    <div className="space-y-4">
+                      {itineraryData.alternative_hotel_options.map((hotel: any, index: number) => (
+                        <Card key={index} className="rounded-xl">
+                          <CardContent className="p-6">
+                            <div className="flex justify-between items-start">
+                              <div className="flex items-center gap-4">
+                                <Hotel className="w-5 h-5 text-muted-foreground" />
+                                <div>
+                                  <h4 className="font-medium">{hotel.name}</h4>
+                                  <p className="text-sm text-muted-foreground">{hotel.address}</p>
+                                  {hotel.hotelId && (
+                                    <p className="text-xs text-muted-foreground">Hotel ID: {hotel.hotelId}</p>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-lg font-bold">${hotel.price_per_night}</p>
+                                <p className="text-sm text-muted-foreground">per night • {hotel.currency}</p>
+                              </div>
+                            </div>
+                            {hotel.rationale && (
+                              <div className="mt-3 bg-muted/50 p-3 rounded-lg">
+                                <p className="text-sm text-muted-foreground">
+                                  {hotel.rationale}
+                                </p>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </TabsContent>
 
               {/* Restaurants Tab */}
