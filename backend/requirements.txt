@@ -48,11 +48,9 @@ pydantic
 pydantic_core
 PyNaCl
 pyparsing
-pypiwin32
 python-dateutil
 python-dotenv
 pythonnet
-pywin32
 PyYAML
 requests
 rsa
