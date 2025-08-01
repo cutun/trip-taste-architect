@@ -167,7 +167,7 @@ const TripForm = () => {
 
       console.log('Sending API request:', apiPayload);
 
-      const response = await fetch('http://localhost:3001/api/v1/itinerary', {
+      const response = await fetch('https://trip-taste-architect-proxy.onrender.com/api/v1/itinerary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(apiPayload)
