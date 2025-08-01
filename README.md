@@ -1,78 +1,67 @@
-# TasteTrail - AI Travel Planning App
-
-An AI-powered travel planning web application that creates personalized itineraries based on your preferences.
-
-## Important: Setup Instructions
-
-⚠️ **You cannot run this app by opening `index.html` directly in your browser!** This is a React application that requires a development server.
-
-### Prerequisites
-
-- Node.js (v18 or higher)
-- npm or yarn
-
-### Installation & Running
-
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-2. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
-
-3. **Open your browser:**
-   Navigate to `http://localhost:5173` (or the port shown in your terminal)
-
-### Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build locally
-- `npm run lint` - Run ESLint
-
-### Technology Stack
-
-- **Frontend:** React 18, TypeScript
-- **Routing:** React Router Dom
-- **Styling:** Tailwind CSS
-- **UI Components:** shadcn/ui
-- **Build Tool:** Vite
-- **Icons:** Lucide React
-- **Date Handling:** date-fns
-
-### Project Structure
-
-```
-src/
-├── components/        # Reusable UI components
-├── pages/            # Page components
-├── hooks/            # Custom React hooks
-├── lib/              # Utility functions
-└── assets/           # Static assets
-```
-
-## Features
-
-- ✨ AI-powered trip planning
-- 📅 Interactive date selection with calendar
-- 👥 Customizable traveler options (adults, children, rooms)
-- 🗺️ Interactive itinerary timeline
-- 📱 Responsive design
-- 🌙 Dark mode support
-
-## Development
-
-The app includes mock data for development. Backend API integration points are marked with TODO comments for future implementation.
+# Synapse Travel Plan  
+**Travel that gets you.**
 
 ---
 
-## Deployment
+## About The Project
 
-You can deploy this project using [Lovable](https://lovable.dev/projects/714fb7c1-c619-4fc2-9f7a-4e36a5858110) by clicking Share -> Publish.
+Inspired by a shared frustration with modern travel planning, **Synapse Travel Plan** eliminates the digital chore of juggling a dozen browser tabs for hotels, reviews, and activities.  
+We envisioned a single platform where a user's unique cultural vibe is the starting point for a truly personalized, budget-aware, and seamlessly planned adventure.
 
-## Custom Domain
+**Synapse Travel Plan** is an intelligent, privacy-first web application that crafts bespoke travel itineraries. Instead of just asking for a destination and dates, we start with a user's cultural DNA: their favorite music, movies, artists, and food.
 
-To connect a custom domain, navigate to Project > Settings > Domains in Lovable.
+Our AI-powered backend then translates these tastes into a coherent, day-by-day itinerary, complete with weather-appropriate activity suggestions and a detailed rationale for every choice.
+
+---
+
+## Technology Stack
+
+- **Backend:** Python, FastAPI, Pydantic, Google Gemini  
+- **Frontend:** React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui  
+- **APIs:** Qloo, Amadeus, OpenWeather
+
+---
+
+## Local Development Setup
+
+To run this project locally for development and testing, you will need to run both the backend and frontend servers.
+
+### Prerequisites
+
+- Python (v3.9 or higher) & pip  
+- Node.js (v18 or higher) & npm  
+- A `.env` file in the backend root directory containing the following variables:
+  - `QLOO_API_KEY`
+  - `GEMINI_API_KEY`
+  - `AMADEUS_CLIENT_ID`
+  - `AMADEUS_CLIENT_SECRET`
+  - `OPENWEATHER_KEY`
+
+---
+
+### Backend Setup
+
+1. Navigate to the backend project directory.
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+4. Run the backend server:
+   ```bash
+   uvicorn main:app --reload
+The backend API will run at: http://127.0.0.1:8000
+
+---
+
+### Frontend Setup
+1. Navigate to the main directory.
+2. Install dependencies:
+   ```bash
+   npm install
+3. Start the frontend development server:
+   ```bash
+   npm run dev
+The application will be accessible at: http://localhost:5173 (or the port shown in the terminal)
