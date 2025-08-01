@@ -417,11 +417,11 @@ const TripDetails = () => {
                       {itineraryData.hotel_details?.total_price_for_stay && (
                         <div className="text-right">
                           <div className="mb-2">
-                            <p className="text-lg font-bold text-green-500">${itineraryData.hotel_details.price_per_night}</p>
+                            <p className="text-lg font-bold text-green-500">${parseFloat(itineraryData.hotel_details.price_per_night).toFixed(2)}</p>
                             <p className="text-xs text-muted-foreground">per night</p>
                           </div>
                           <div>
-                            <p className="text-2xl font-bold text-primary">${itineraryData.hotel_details.total_price_for_stay}</p>
+                            <p className="text-2xl font-bold text-primary">${parseFloat(itineraryData.hotel_details.total_price_for_stay).toFixed(2)}</p>
                             <p className="text-sm text-muted-foreground">Total ({tripLengthInNights} nights) • {itineraryData.hotel_details.currency}</p>
                           </div>
                         </div>
@@ -476,11 +476,11 @@ const TripDetails = () => {
                               </div>
                               <div className="text-right">
                                  <div className="mb-2">
-                                   <p className="text-lg font-bold text-green-500">${hotel.price_per_night}</p>
+                                   <p className="text-lg font-bold text-green-500">${parseFloat(hotel.price_per_night).toFixed(2)}</p>
                                    <p className="text-xs text-muted-foreground">per night</p>
                                  </div>
                                  <div>
-                                   <p className="text-lg font-bold">${hotel.total_price_for_stay}</p>
+                                   <p className="text-lg font-bold">${parseFloat(hotel.total_price_for_stay).toFixed(2)}</p>
                                    <p className="text-sm text-muted-foreground">Total ({tripLengthInNights} nights) • {hotel.currency}</p>
                                  </div>
                               </div>
