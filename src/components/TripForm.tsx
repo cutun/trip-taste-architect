@@ -145,6 +145,13 @@ const TripForm = () => {
     e.preventDefault();
     setIsLoading(true);
     
+    // Show heads up message about latency
+    toast({
+      title: "Generating Your Perfect Itinerary",
+      description: "Please have some patience - we're currently experiencing latency issues and this might take up to 20 minutes. Thank you for your understanding!",
+      duration: 8000,
+    });
+    
     try {
       // Parse destination to get city and country
       const destinationParts = formData.destination.split(',').map(part => part.trim());
