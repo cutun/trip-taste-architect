@@ -614,25 +614,47 @@ const TripDetails = () => {
                      )}
 
                      <div className="flex justify-between items-center">
-                       <span className="font-medium">Base Budget</span>
-                       <span className="text-lg font-bold">${itineraryData.budget_allocation.total_trip_budget}</span>
-                     </div>
-                     
-                     {accommodationBudget.primaryHotelTotal > 0 && (
-                       <div className="flex justify-between items-center">
-                         <span className="font-medium">Total with Hotels</span>
-                         <span className={`text-2xl font-bold ${accommodationBudget.hasOverflow ? 'text-red-600' : 'text-primary'}`}>
-                           ${(itineraryData.budget_allocation.total_trip_budget + accommodationBudget.primaryHotelTotal).toFixed(0)}
-                         </span>
-                       </div>
-                     )}
-                     
-                     {!accommodationBudget.primaryHotelTotal && (
-                       <div className="flex justify-between items-center">
-                         <span className="font-medium">Total Budget</span>
-                         <span className="text-2xl font-bold text-primary">${itineraryData.budget_allocation.total_trip_budget}</span>
-                       </div>
-                     )}
+                        <span className="font-medium">base budget</span>
+                        <span className="text-lg font-bold text-green-500">${itineraryData.budget_allocation.total_trip_budget}</span>
+                      </div>
+                      
+                      {accommodationBudget.primaryHotelTotal > 0 && (
+                        <>
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium">Total with Hotels</span>
+                            <span className={`text-lg font-bold ${accommodationBudget.hasOverflow ? 'text-red-600' : 'text-primary'}`}>
+                              ${(itineraryData.budget_allocation.food_budget_total + 
+                                  itineraryData.budget_allocation.activities_budget_total + 
+                                  itineraryData.budget_allocation.transportation_budget + 
+                                  itineraryData.budget_allocation.shopping_budget + 
+                                  accommodationBudget.primaryHotelTotal).toFixed(0)}
+                            </span>
+                          </div>
+                          
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium">Remaining Budget</span>
+                            <span className="text-2xl font-bold">
+                              ${(itineraryData.budget_allocation.total_trip_budget - 
+                                  (itineraryData.budget_allocation.food_budget_total + 
+                                   itineraryData.budget_allocation.activities_budget_total + 
+                                   itineraryData.budget_allocation.transportation_budget + 
+                                   itineraryData.budget_allocation.shopping_budget + 
+                                   accommodationBudget.primaryHotelTotal)).toFixed(0)}
+                            </span>
+                          </div>
+                        </>
+                      )}
+                      
+                      {!accommodationBudget.primaryHotelTotal && (
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium">Remaining Budget</span>
+                          <span className="text-2xl font-bold">${(itineraryData.budget_allocation.total_trip_budget - 
+                            (itineraryData.budget_allocation.food_budget_total + 
+                             itineraryData.budget_allocation.activities_budget_total + 
+                             itineraryData.budget_allocation.transportation_budget + 
+                             itineraryData.budget_allocation.shopping_budget)).toFixed(0)}</span>
+                        </div>
+                      )}
                   </>
                 )}
 
