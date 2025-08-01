@@ -6,19 +6,20 @@ const cors = require('cors');
 require('dotenv').config();
 
 // --- Configuration ---
-// Read port from environment variable, or default to 3001
 const NODE_PORT = process.env.PORT || 3001;
-// Read Python API URL from environment variable, or default to local development URL
 const PYTHON_API_URL = process.env.PYTHON_API_URL || 'http://127.0.0.1:8000/api/v1/itinerary';
 
 // --- Express App Setup ---
 const app = express();
-app.use(express.json());
+
+// Handle CORS first
 app.use(cors({
   origin: ['https://tripmasterplan.com', 'https://www.tripmasterplan.com'],
   credentials: true // if using cookies or auth headers
 }));
 
+// Then, parse the JSON body for requests that are allowed
+app.use(express.json());
 
 // --- API Routes ---
 
