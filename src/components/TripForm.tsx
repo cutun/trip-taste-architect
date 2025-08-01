@@ -167,121 +167,32 @@ const TripForm = () => {
 
       console.log('Sending API request:', apiPayload);
 
-      try {
-        const response = await fetch('http://localhost:3001/api/v1/itinerary', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(apiPayload)
-        });
+      const response = await fetch('http://localhost:3001/api/v1/itinerary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(apiPayload)
+      });
 
-        if (!response.ok) {
-          throw new Error(`API call failed: ${response.status} ${response.statusText}`);
-        }
-
-        const itineraryData = await response.json();
-        console.log('Received itinerary:', itineraryData);
-        
-        setIsLoading(false);
-        // Navigate directly to trip details with the real itinerary data
-        navigate('/trip-details/1', { 
-          state: { 
-            formData, 
-            itineraryData 
-          } 
-        });
-      } catch (backendError) {
-        console.warn('Backend not available, using demo mode:', backendError);
-        
-        // Create demo itinerary data when backend is unavailable
-        const demoItinerary = {
-          destination: {
-            city: destinationCity,
-            country: destinationCountry,
-            description: `Experience the best of ${destinationCity} with this carefully curated itinerary.`
-          },
-          budget_allocation: {
-            accommodation: Math.round(parseFloat(formData.budget) * 0.4),
-            food: Math.round(parseFloat(formData.budget) * 0.25),
-            activities: Math.round(parseFloat(formData.budget) * 0.25),
-            transportation: Math.round(parseFloat(formData.budget) * 0.1)
-          },
-          days: [
-            {
-              day: 1,
-              theme: "Arrival & City Exploration",
-              activities: [
-                {
-                  time: "10:00 AM",
-                  title: "City Walking Tour",
-                  description: "Explore the historic downtown area and main attractions",
-                  duration: "3 hours",
-                  cost: 25,
-                  category: "Cultural"
-                },
-                {
-                  time: "2:00 PM",
-                  title: "Local Cuisine Experience",
-                  description: "Try authentic local dishes at a recommended restaurant",
-                  duration: "2 hours",
-                  cost: 45,
-                  category: "Food"
-                }
-              ]
-            },
-            {
-              day: 2,
-              theme: "Adventure & Sightseeing",
-              activities: [
-                {
-                  time: "9:00 AM",
-                  title: "Popular Attraction Visit",
-                  description: "Visit the most famous landmark in the area",
-                  duration: "4 hours",
-                  cost: 35,
-                  category: "Sightseeing"
-                },
-                {
-                  time: "3:00 PM",
-                  title: "Outdoor Activity",
-                  description: "Enjoy nature and outdoor adventures",
-                  duration: "3 hours",
-                  cost: 40,
-                  category: "Adventure"
-                }
-              ]
-            }
-          ],
-          total_estimated_cost: Math.round(parseFloat(formData.budget) * 0.8),
-          trip_highlights: [
-            `Discover ${destinationCity}'s rich cultural heritage`,
-            "Experience authentic local cuisine",
-            "Enjoy scenic outdoor adventures"
-          ]
-        };
-
-        setIsLoading(false);
-        
-        // Show informational toast about demo mode
-        toast({
-          title: "Demo Mode",
-          description: "Backend services are currently unavailable. Showing demo itinerary.",
-          variant: "default",
-        });
-        
-        // Navigate to trip details with demo data
-        navigate('/trip-details/1', { 
-          state: { 
-            formData, 
-            itineraryData: demoItinerary,
-            isDemoMode: true
-          } 
-        });
+      if (!response.ok) {
+        throw new Error(`API call failed: ${response.status} ${response.statusText}`);
       }
+
+      const itineraryData = await response.json();
+      console.log('Received itinerary:', itineraryData);
+      
+      setIsLoading(false);
+      // Navigate directly to trip details with the real itinerary data
+      navigate('/trip-details/1', { 
+        state: { 
+          formData, 
+          itineraryData 
+        } 
+      });
     } catch (error) {
-      console.error('Unexpected error:', error);
+      console.error('Error generating itinerary:', error);
       toast({
         title: "Error",
-        description: "Something went wrong. Please check your inputs and try again.",
+        description: "Failed to generate itinerary. Please make sure the backend is running and try again.",
         variant: "destructive",
       });
       setIsLoading(false);
