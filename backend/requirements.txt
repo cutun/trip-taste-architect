@@ -10,6 +10,7 @@ cement==2.10.14
 certifi==2025.7.14
 cffi==1.17.1
 charset-normalizer==3.4.2
+click==8.2.1
 clr_loader==0.2.7.post0
 colorama==0.4.6
 cryptography==45.0.5
@@ -67,6 +68,7 @@ typing-inspection==0.4.1
 typing_extensions==4.14.1
 uritemplate==4.2.0
 urllib3==1.26.20
+uvicorn==0.35.0
 wcwidth==0.2.13
 websockets==15.0.1
 wrapt==1.17.2
