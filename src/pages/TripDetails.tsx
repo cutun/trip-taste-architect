@@ -70,6 +70,27 @@ const TripDetails = () => {
     const destinationCity = formData?.destination?.split(',')[0]?.trim() || 'Los Angeles';
     return getCityCoordinates(destinationCity);
   };
+
+  // Function to geocode hotel address to coordinates
+  const geocodeHotelAddress = async (address: string): Promise<[number, number]> => {
+    try {
+      const accessToken = 'pk.eyJ1IjoiaGlrYW5ha28iLCJhIjoiY21kMmVmM2pjMXUyNzJscHUxMmR2bzllbCJ9.GX4ovlr7gxjETRymXw0D4A';
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${accessToken}&limit=1`
+      );
+      const data = await response.json();
+      
+      if (data.features && data.features.length > 0) {
+        const [lng, lat] = data.features[0].center;
+        return [lng, lat];
+      }
+    } catch (error) {
+      console.error('Geocoding error:', error);
+    }
+    
+    // Fallback to destination city coordinates
+    return getCityCoordinates(formData?.destination?.split(',')[0]?.trim() || 'Los Angeles');
+  };
   
   if (!itineraryData || !formData) {
     navigate('/');
@@ -369,7 +390,18 @@ const TripDetails = () => {
               {/* Hotels Tab */}
               <TabsContent value="hotels" className="space-y-4">
                 {/* Primary Hotel */}
-                <Card className="rounded-xl">
+                <Card className={`rounded-xl ${itineraryData.hotel_details?.address ? 'hover:shadow-md transition-shadow cursor-pointer' : ''}`}
+                      onClick={async () => {
+                        if (itineraryData.hotel_details?.address) {
+                          const coordinates = await geocodeHotelAddress(itineraryData.hotel_details.address);
+                          setSelectedActivity({
+                            name: itineraryData.hotel_details.name,
+                            time: 'Primary Accommodation',
+                            icon: '🏨',
+                            coordinates
+                          });
+                        }
+                      }}>
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex items-center gap-4">
@@ -418,10 +450,19 @@ const TripDetails = () => {
                 {itineraryData.alternative_hotel_options?.length > 0 && (
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Alternative Options</h3>
-                    <div className="space-y-4">
-                      {itineraryData.alternative_hotel_options.map((hotel: any, index: number) => (
-                        <Card key={index} className="rounded-xl">
-                          <CardContent className="p-6">
+                     <div className="space-y-4">
+                       {itineraryData.alternative_hotel_options.map((hotel: any, index: number) => (
+                         <Card key={index} className="rounded-xl hover:shadow-md transition-shadow cursor-pointer"
+                               onClick={async () => {
+                                 const coordinates = await geocodeHotelAddress(hotel.address);
+                                 setSelectedActivity({
+                                   name: hotel.name,
+                                   time: 'Alternative Option',
+                                   icon: '🏨',
+                                   coordinates
+                                 });
+                               }}>
+                           <CardContent className="p-6">
                             <div className="flex justify-between items-start">
                               <div className="flex items-center gap-4">
                                 <Hotel className="w-5 h-5 text-muted-foreground" />
