@@ -12,47 +12,37 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 hero-gradient opacity-10" />
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('/lovable-uploads/1ab10f6b-8ae3-4dc7-a042-e7ac024910e1.png')`
+        }}
+      />
+      
+      {/* Dark overlay for text readability */}
+      <div className="absolute inset-0 bg-black/40" />
       
       {/* Hero content */}
       <div className="container mx-auto px-6 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left column - Text content */}
-          <div className="text-center lg:text-left">
-            <h1 className="text-5xl lg:text-7xl font-poppins font-bold mb-6 leading-tight">
-              <span className="text-primary">Trips</span> that match{' '}
-              <span className="text-secondary">your taste</span>
-            </h1>
-            
-            <p className="text-xl text-muted-foreground mb-8 max-w-xl leading-relaxed">
-              Discover personalized travel experiences powered by AI. Tell us your preferences, 
-              and we'll craft the perfect itinerary just for you.
-            </p>
-            
-            <Button 
-              onClick={scrollToForm}
-              size="lg"
-              className="text-lg px-8 py-6 rounded-xl shadow-elegant hover:shadow-lg transition-smooth"
-            >
-              Plan my trip
-            </Button>
-          </div>
+        <div className="flex flex-col items-center text-center">
+          <h1 className="text-5xl lg:text-7xl font-poppins font-bold mb-6 leading-tight text-white">
+            <span className="text-white">Trips</span> that match{' '}
+            <span className="text-white/90">your taste</span>
+          </h1>
           
-          {/* Right column - Hero image */}
-          <div className="relative">
-            <div className="relative z-10">
-              <img 
-                src={heroGlobe} 
-                alt="AI Travel Planning Globe" 
-                className="w-full h-auto rounded-2xl shadow-card"
-              />
-            </div>
-            
-            {/* Decorative elements */}
-            <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary/20 rounded-full blur-xl" />
-            <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-secondary/20 rounded-full blur-xl" />
-          </div>
+          <p className="text-xl text-white/80 mb-8 max-w-2xl leading-relaxed">
+            Discover personalized travel experiences powered by AI. Tell us your preferences, 
+            and we'll craft the perfect itinerary just for you.
+          </p>
+          
+          <Button 
+            onClick={scrollToForm}
+            size="lg"
+            className="text-lg px-8 py-6 rounded-xl shadow-elegant hover:shadow-lg transition-smooth bg-white text-black hover:bg-white/90"
+          >
+            Plan my trip
+          </Button>
         </div>
       </div>
       
