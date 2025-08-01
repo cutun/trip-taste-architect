@@ -76,6 +76,37 @@ const TripDetails = () => {
     return null;
   }
 
+  // Calculate trip length in nights
+  const tripLengthInNights = formData.startDate && formData.endDate 
+    ? Math.ceil((formData.endDate.getTime() - formData.startDate.getTime()) / (1000 * 60 * 60 * 24))
+    : itineraryData.days?.length || 7;
+
+  // Calculate actual per-night prices and accommodation budget impact
+  const calculateAccommodationBudget = () => {
+    const totalBudget = itineraryData.budget_allocation?.total_trip_budget || parseFloat(formData.budget) || 0;
+    const otherExpenses = (itineraryData.budget_allocation?.food_budget_total || 0) +
+                         (itineraryData.budget_allocation?.activities_budget_total || 0) +
+                         (itineraryData.budget_allocation?.transportation_budget || 0) +
+                         (itineraryData.budget_allocation?.shopping_budget || 0);
+    
+    const remainingBudget = totalBudget - otherExpenses;
+    
+    const primaryHotelTotal = itineraryData.hotel_details?.total_price_for_stay || 0;
+    const primaryHotelPerNight = primaryHotelTotal / tripLengthInNights;
+    
+    const accommodationOverflow = primaryHotelTotal - remainingBudget;
+    
+    return {
+      remainingBudget,
+      primaryHotelTotal,
+      primaryHotelPerNight,
+      accommodationOverflow,
+      hasOverflow: accommodationOverflow > 0
+    };
+  };
+
+  const accommodationBudget = calculateAccommodationBudget();
+
   // Extract restaurants from itinerary days for the restaurants tab
   const restaurants = itineraryData.days?.flatMap((day: any) => {
     const dayRestaurants = [];
@@ -353,8 +384,14 @@ const TripDetails = () => {
                       </div>
                       {itineraryData.hotel_details?.total_price_for_stay && (
                         <div className="text-right">
-                          <p className="text-2xl font-bold text-primary">${itineraryData.hotel_details.total_price_for_stay}</p>
-                          <p className="text-sm text-muted-foreground">Total stay • {itineraryData.hotel_details.currency}</p>
+                          <div className="mb-2">
+                            <p className="text-lg font-bold">${accommodationBudget.primaryHotelPerNight.toFixed(0)}</p>
+                            <p className="text-xs text-muted-foreground">per night</p>
+                          </div>
+                          <div>
+                            <p className="text-2xl font-bold text-primary">${itineraryData.hotel_details.total_price_for_stay}</p>
+                            <p className="text-sm text-muted-foreground">Total ({tripLengthInNights} nights) • {itineraryData.hotel_details.currency}</p>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -397,8 +434,14 @@ const TripDetails = () => {
                                 </div>
                               </div>
                               <div className="text-right">
-                                <p className="text-lg font-bold">${hotel.price_per_night}</p>
-                                <p className="text-sm text-muted-foreground">per night • {hotel.currency}</p>
+                                <div className="mb-2">
+                                  <p className="text-lg font-bold">${(hotel.price_per_night / tripLengthInNights).toFixed(0)}</p>
+                                  <p className="text-xs text-muted-foreground">per night</p>
+                                </div>
+                                <div>
+                                  <p className="text-lg font-bold text-red-600">${hotel.price_per_night}</p>
+                                  <p className="text-sm text-muted-foreground">Total ({tripLengthInNights} nights) • {hotel.currency}</p>
+                                </div>
                               </div>
                             </div>
                             {hotel.rationale && (
@@ -489,31 +532,66 @@ const TripDetails = () => {
               <CardContent className="space-y-4">
                 {itineraryData.budget_allocation && (
                   <>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Food Budget</span>
-                        <span>${itineraryData.budget_allocation.food_budget_total}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Activities Budget</span>
-                        <span>${itineraryData.budget_allocation.activities_budget_total}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Transportation</span>
-                        <span>${itineraryData.budget_allocation.transportation_budget}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Shopping Budget</span>
-                        <span>${itineraryData.budget_allocation.shopping_budget}</span>
-                      </div>
-                    </div>
+                     <div className="space-y-2">
+                       <div className="flex justify-between text-sm">
+                         <span>Food Budget</span>
+                         <span>${itineraryData.budget_allocation.food_budget_total}</span>
+                       </div>
+                       <div className="flex justify-between text-sm">
+                         <span>Activities Budget</span>
+                         <span>${itineraryData.budget_allocation.activities_budget_total}</span>
+                       </div>
+                       <div className="flex justify-between text-sm">
+                         <span>Transportation</span>
+                         <span>${itineraryData.budget_allocation.transportation_budget}</span>
+                       </div>
+                       <div className="flex justify-between text-sm">
+                         <span>Shopping Budget</span>
+                         <span>${itineraryData.budget_allocation.shopping_budget}</span>
+                       </div>
+                       {accommodationBudget.primaryHotelTotal > 0 && (
+                         <div className="flex justify-between text-sm">
+                           <span>Accommodation</span>
+                           <span className={accommodationBudget.hasOverflow ? "text-red-600 font-medium" : ""}>
+                             ${accommodationBudget.primaryHotelTotal}
+                           </span>
+                         </div>
+                       )}
+                     </div>
 
-                    <Separator />
+                     <Separator />
 
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">Total Budget</span>
-                      <span className="text-2xl font-bold text-primary">${itineraryData.budget_allocation.total_trip_budget}</span>
-                    </div>
+                     {accommodationBudget.hasOverflow && (
+                       <div className="bg-red-50 dark:bg-red-950/20 p-3 rounded-lg">
+                         <p className="text-sm text-red-800 dark:text-red-200 font-medium">
+                           ⚠️ Budget Overflow: ${accommodationBudget.accommodationOverflow.toFixed(0)} over budget
+                         </p>
+                         <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                           Consider alternative hotels or adjust your budget
+                         </p>
+                       </div>
+                     )}
+
+                     <div className="flex justify-between items-center">
+                       <span className="font-medium">Base Budget</span>
+                       <span className="text-lg font-bold">${itineraryData.budget_allocation.total_trip_budget}</span>
+                     </div>
+                     
+                     {accommodationBudget.primaryHotelTotal > 0 && (
+                       <div className="flex justify-between items-center">
+                         <span className="font-medium">Total with Hotels</span>
+                         <span className={`text-2xl font-bold ${accommodationBudget.hasOverflow ? 'text-red-600' : 'text-primary'}`}>
+                           ${(itineraryData.budget_allocation.total_trip_budget + accommodationBudget.primaryHotelTotal).toFixed(0)}
+                         </span>
+                       </div>
+                     )}
+                     
+                     {!accommodationBudget.primaryHotelTotal && (
+                       <div className="flex justify-between items-center">
+                         <span className="font-medium">Total Budget</span>
+                         <span className="text-2xl font-bold text-primary">${itineraryData.budget_allocation.total_trip_budget}</span>
+                       </div>
+                     )}
                   </>
                 )}
 
