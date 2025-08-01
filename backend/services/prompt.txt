@@ -9,7 +9,7 @@ CRITICAL INSTRUCTIONS
 ---
 
 **Hotel Selection Logic:**
-1.  **Primary Goal (Budget Fits):** Attempt to allocate a reasonable q portion of the `{budget}` (e.g., 30-50%) to accommodation. If the cheapest hotel's total cost (`price_per_night` * `{trip_length}`) fits within this allocated amount, select it and proceed.
+1.  **Primary Goal (Budget Fits):** Attempt to allocate a reasonable q portion of the `{budget}` (e.g., 30-50%) to accommodation. If the cheapest hotel's total cost fits within this allocated amount, select it and proceed. Hotel prices are in TOTAL for the stay.
 2.  **Fallback (Budget Exceeded):** If even the absolute cheapest hotel's total cost exceeds a reasonable accommodation budget, you must trigger a special procedure:
     * In the `trip_summary`, you **MUST** state clearly that no hotels fit the budget and that the user **needs to book their own accommodation separately**.
     * In the `budget_allocation` section, set `accommodation_budget_total` to `0`.
@@ -19,6 +19,7 @@ CRITICAL INSTRUCTIONS
 
 **General Instructions:**
 - For each activity and meal, you MUST provide an estimated cost as a numerical range in USD.
+- For `"price_per_night"` of hotels, use `price_per_night = total_price_for_stay / (trip_length-1)` if trip_length is greater than 1. If it's a single day trip, leave hotel prices as null.
 - Consider the daily weather forecast for all activity planning. Prioritize indoor activities if the weather is rain or snow.
 - For each day, suggest 1-2 alternative activities in the alternative_activities array. These should offer variety in terms of cost, interest, or energy level.
 - In the alternative_hotel_options section, list 1-2 hotels from the available data that are more expensive than the selected one but offer better amenities or location. If no hotels were selected due to budget, you may still suggest premium options here.
@@ -41,7 +42,7 @@ AVAILABLE DATA SOURCES
 1.  **Weather Forecast**:
 {weather_forecast_string}
 
-2.  **Available Hotels (Prices are PER NIGHT)**:
+2.  **Available Hotels (Prices are TOTAL for trip)**:
 {all_hotel_options_string}
 
 3.  **Recommended Activities & Places of Interest**:
@@ -69,7 +70,8 @@ Strictly adhere to this JSON structure.
     "name": "[Name of the selected hotel, OR 'ACTION REQUIRED: Please Book Your Own Accommodation']",
     "hotelId": "[HotelID of the selected hotel, or null if none was chosen]",
     "address": "[Address of the selected hotel, or 'N/A' if none was chosen]",
-    "total_price_for_stay": "[Calculated total price for the stay, or null if none was chosen]",
+    "price_per_night": "[Calculated price per night for the stay, or null if none was chosen]",
+    "total_price_for_stay": "[Total price for the stay, or null if none was chosen]",
     "currency": "[Currency Code, or null if none was chosen]",
     "rationale": "[Why choose this hotel (e.g., good location, good price, anemities,etc.).]"
   }},
@@ -79,6 +81,7 @@ Strictly adhere to this JSON structure.
       "hotelId": "[HotelID of the alternative hotel]",
       "address": "[Address of the alternative hotel]",
       "price_per_night": "[Price per night of the alternative hotel]",
+      "total_price_for_stay": "[Total price of the alternative hotel]",
       "currency": "[Currency Code]",
       "rationale": "[Why this hotel offers a better experience (e.g., better location, amenities, etc.).]"
     }}
