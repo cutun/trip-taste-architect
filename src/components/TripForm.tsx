@@ -205,7 +205,7 @@ const TripForm = () => {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-poppins font-bold mb-4">
-              Plan Your <span className="bg-gradient-to-r from-primary to-coral bg-clip-text text-transparent">Perfect Trip</span>
+              Plan Your <span className="relative inline-block animate-pulse text-primary">Perfect</span> Trip
             </h2>
             <p className="text-lg text-muted-foreground">
               Tell us about your preferences and we'll create a personalized itinerary
