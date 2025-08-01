@@ -1,4 +1,6 @@
 # pip install fastapi "uvicorn[standard]" python-dotenv httpx
 # npm install express
-google-genai
-geopy
+fastapi
+pydantic
+gunicorn
+uvicorn
