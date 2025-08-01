@@ -34,7 +34,7 @@ app.post('/api/v1/itinerary', async (req, res) => {
   console.log('Request Body:', req.body);
 
   try {
-    const response = await axios.post(PYTHON_API_URL, req.body, {
+    const response = await axios.get(PYTHON_API_URL, req.body, {
       headers: {
         'Content-Type': 'application/json',
       },
