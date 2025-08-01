@@ -146,12 +146,12 @@ const TripDetails = () => {
                     </p>
                     <p className="flex items-center gap-2">
                       <span className="font-medium">Preferences:</span>
-                      <span className="text-green-600">✓ {formData.likes?.join(', ') || 'Entertainment'}</span>
+                      <span className="text-green-600 font-medium">{formData.likes?.join(', ') || 'Entertainment'}</span>
                     </p>
                     {formData.dislikes?.length > 0 && (
                       <p className="flex items-center gap-2">
                         <span className="font-medium">Avoiding:</span>
-                        <span className="text-red-600">✗ {formData.dislikes.join(', ')}</span>
+                        <span className="text-red-600 font-medium">{formData.dislikes.join(', ')}</span>
                       </p>
                     )}
                   </div>
@@ -159,10 +159,10 @@ const TripDetails = () => {
                 <div>
                   <h3 className="font-semibold text-lg mb-3 text-primary">Trip Highlights</h3>
                   <div className="space-y-2 text-sm">
-                    <p>🏨 Accommodation guidance provided</p>
-                    <p>🎯 Activities curated to your interests</p>
-                    <p>🍽️ Dining recommendations included</p>
-                    <p>🌤️ Weather-optimized itinerary</p>
+                    <p>• Accommodation guidance provided</p>
+                    <p>• Activities curated to your interests</p>
+                    <p>• Dining recommendations included</p>
+                    <p>• Weather-optimized itinerary</p>
                   </div>
                 </div>
               </div>
