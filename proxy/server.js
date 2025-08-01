@@ -6,38 +6,14 @@ const cors = require('cors');
 require('dotenv').config();
 
 // --- Configuration ---
+// Read port from environment variable, or default to 3001
 const NODE_PORT = process.env.PORT || 3001;
+// Read Python API URL from environment variable, or default to local development URL
 const PYTHON_API_URL = process.env.PYTHON_API_URL || 'http://127.0.0.1:8000/api/v1/itinerary';
 
 // --- Express App Setup ---
 const app = express();
-
-// --- CORS Configuration ---
-// Define your allowed origins
-const allowedOrigins = ['https://tripmasterplan.com', 'https://www.tripmasterplan.com'];
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    // allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'OPTIONS'], // Explicitly allow methods
-  allowedHeaders: ['Content-Type', 'Authorization'] // Explicitly allow headers
-};
-
-// 1. First, handle preflight requests for all routes
-app.options('*', cors(corsOptions));
-
-// 2. Then, apply CORS for all other requests
-app.use(cors(corsOptions));
-
-// 3. Finally, use other middleware
+app.use(cors());
 app.use(express.json());
 
 
