@@ -149,7 +149,6 @@ const TripForm = () => {
     toast({
       title: "Generating Your Perfect Itinerary",
       description: "Please have some patience - we're currently experiencing latency issues and this might take up to 20 minutes. Thank you for your understanding!",
-      duration: 8000,
     });
     
     try {
