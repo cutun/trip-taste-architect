@@ -15,8 +15,6 @@ const PYTHON_API_URL = process.env.PYTHON_API_URL || 'http://127.0.0.1:8000/api/
 const app = express();
 app.use(cors());
 app.use(express.json());
-
-const cors = require('cors');
 app.use(cors({
   origin: ['https://tripmasterplan.com', 'https://www.tripmasterplan.com'],
   credentials: true // if using cookies or auth headers
