@@ -162,7 +162,10 @@ const TripForm = () => {
         likes: formData.likes,
         dislikes: formData.dislikes.length > 0 ? formData.dislikes : undefined,
         check_in_date: checkInDate,
-        check_out_date: checkOutDate
+        check_out_date: checkOutDate,
+        adults: formData.adults,
+        children: formData.children,
+        rooms: formData.rooms
       };
 
       console.log('Sending API request:', apiPayload);
