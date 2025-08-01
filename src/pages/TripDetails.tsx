@@ -176,7 +176,7 @@ const TripDetails = () => {
           <Button 
             variant="outline" 
             onClick={() => navigate('/')}
-            className="mb-4 text-white border-white hover:bg-white hover:text-black"
+            className="mb-4 text-white border-white hover:bg-white hover:text-black [&>*]:text-white"
           >
             ← Back to Trip Form
           </Button>
