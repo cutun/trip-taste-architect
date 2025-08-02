@@ -1,6 +1,9 @@
 # Synapse Travel Plan  
 **Travel that gets you.**
 
+<p align="center">
+  <img src="public/demo.gif" width="1000" />
+</p>
 ---
 
 ## About The Project
