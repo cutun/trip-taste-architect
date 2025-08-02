@@ -1,6 +1,9 @@
 # Synapse Travel Plan  
 **Travel that gets you.**
 
+<p align="center">
+  <img src="public/demo.gif" width="1000" />
+</p>
 ---
 
 ## About The Project
@@ -65,3 +68,9 @@ The backend API will run at: http://127.0.0.1:8000
    ```bash
    npm run dev
 The application will be accessible at: http://localhost:5173 (or the port shown in the terminal)
+
+---
+
+## License
+This project is licensed under a custom “All Rights Reserved” license.  
+See the [LICENSE](LICENSE) file for details.
