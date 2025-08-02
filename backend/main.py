@@ -43,7 +43,7 @@ class ItineraryRequest(BaseModel):
 
 # --- API Endpoints ---
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def read_root():
     """A simple root endpoint to confirm the API is running."""
     return {"message": "Welcome to the TasteTrail API v1.1 (Weather-Aware)"}
